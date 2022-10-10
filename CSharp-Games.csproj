@@ -5,6 +5,8 @@
         <TargetFramework>net5.0-windows</TargetFramework>
         <RootNamespace>CSharp_Games</RootNamespace>
         <UseWindowsForms>true</UseWindowsForms>
+        <LangVersion>11</LangVersion>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
 </Project>
