@@ -1,0 +1,11 @@
+### C#
+
+bin/
+obj/
+/packages/
+
+### Rider
+
+.idea
+riderModule.iml
+/_ReSharper.Caches/
