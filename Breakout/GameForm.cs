@@ -12,15 +12,17 @@ public partial class GameForm : Form {
 	private const int TimerInterval = 1000 / 120;
 	private static readonly Random Random = new();
 
-	public static readonly Dictionary<char, BrickType> BricksTypes = new()
-	{
-		{ '-', new BrickType { Name = "Brick", Color = Color.Red } },
+	private static readonly Dictionary<char, BrickType> BricksTypes = new() {
+		{ '-', new BrickType { Name = "Brick", Color = Color.Red, Score = 10 } },
 		{ ' ', new BrickType { Name = "Empty", Color = Color.Transparent } }
 	};
 
-	private readonly List<Control> _bricks;
+	private readonly List<Brick> _bricks;
+
+	private readonly List<ScoreLabel> _scoreLabels = new();
 
 	private bool _accelerate;
+	private int _score;
 
 	public PointF BallVelocity;
 
@@ -40,6 +42,7 @@ public partial class GameForm : Form {
 
 	public GameForm() {
 		InitializeComponent();
+
 		paddle.Left = ClientSize.Width / 2 - paddle.Width / 2;
 		paddle.Top = (int)(ClientSize.Height * .9) - paddle.Height;
 		ResetBall();
@@ -47,7 +50,7 @@ public partial class GameForm : Form {
 		timer.Interval = TimerInterval;
 
 		Debug.WriteLine("debug");
-		_bricks = new List<Control>(Regex.Replace(BricksLayout, @"\s+", "").Length);
+		_bricks = new List<Brick>(Regex.Replace(BricksLayout, @"\s+", "").Length);
 		GenerateBricks();
 	}
 
@@ -65,13 +68,9 @@ public partial class GameForm : Form {
 	 * The bricks are added to the Controls collection.
 	 */
 	public void GenerateBricks() {
-		const int brickWidth = 50;
-		const int brickHeight = 20;
-		const int brickMargin = 5;
-
 		var rows = BricksLayout.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-		var startX = (ClientSize.Width - (brickWidth + brickMargin) * rows[0].Length) / 2;
-		var startY = (ClientSize.Height - (brickHeight + brickMargin) * rows.Length) / 5;
+		var startX = (ClientSize.Width - (Brick.BrickWidth + Brick.BrickMargin) * rows[0].Length) / 2;
+		var startY = (ClientSize.Height - (Brick.BrickHeight + Brick.BrickMargin) * rows.Length) / 5;
 
 		for (var rowIndex = 0; rowIndex < rows.Length; rowIndex++) {
 			var row = rows[rowIndex];
@@ -82,31 +81,34 @@ public partial class GameForm : Form {
 				var brickType = BricksTypes[row[colIndex]];
 				if (brickType.IsEmpty) continue;
 
-				var brick = new PictureBox
-				{
-					Tag = "Brick",
-					Width = brickWidth,
-					Height = brickHeight,
-					BackColor = brickType.Color,
-					Left = startX + colIndex * (brickWidth + brickMargin),
-					Top = startY + rowIndex * (brickHeight + brickMargin)
+				var brick = new Brick(brickType) {
+					Left = startX + colIndex * (Brick.BrickWidth + Brick.BrickMargin),
+					Top = startY + rowIndex * (Brick.BrickHeight + Brick.BrickMargin)
 				};
 				_bricks.Add(brick);
 			}
 		}
 
 		Controls.AddRange(_bricks.ToArray());
+
+		// set index for all bricks
+		foreach (var brick in _bricks) {
+			Controls.SetChildIndex(brick, 1);
+		}
 	}
 
 	private void timer1_Elapsed(object sender, ElapsedEventArgs e) {
 		var deltaTime = (int)(e.SignalTime - e.SignalTime.AddMilliseconds(-TimerInterval)).TotalMilliseconds;
 
 		if (_accelerate) BallSpeed = 2;
-		else BallSpeed = .33f;
+		else BallSpeed = .65f;
 		
-		MovePaddle(deltaTime);
+		ScoreLabel.Text = $"Score: {_score}";
+
 		MoveBall(deltaTime);
-		
+		MovePaddle(deltaTime);
+		MoveScoreLabels(deltaTime);
+
 		if (ball.Left < 0 || ball.Left > ClientSize.Width - ball.Width) BallVelocity.X *= -1;
 
 		if (ball.Top < 0) {
@@ -139,15 +141,33 @@ public partial class GameForm : Form {
 
 			_bricks.Remove(brick);
 			Controls.Remove(brick);
+			_score += brick.Type.Score;
+
+			var scoreLabel = new ScoreLabel(brick.Location, brick.Top - 80, brick.Type.Score);
+			_scoreLabels.Add(scoreLabel);
+			Controls.Add(scoreLabel);
+			Controls.SetChildIndex(scoreLabel, 0);
 
 			// if the ball hit the brick from the side
-			if (ballCenter.X < brickCenter.X && BallVelocity.X > 0 || ballCenter.X > brickCenter.X && BallVelocity.X < 0) BallVelocity.X *= -1;
+			if ((ballCenter.X < brickCenter.X && BallVelocity.X > 0) || (ballCenter.X > brickCenter.X && BallVelocity.X < 0)) BallVelocity.X *= -1;
 
 			// if the ball hit the brick from the top or bottom
-			if (ballCenter.Y < brickCenter.Y && BallVelocity.Y > 0 || ballCenter.Y > brickCenter.Y && BallVelocity.Y < 0) BallVelocity.Y *= -1;
+			if ((ballCenter.Y < brickCenter.Y && BallVelocity.Y > 0) || (ballCenter.Y > brickCenter.Y && BallVelocity.Y < 0)) BallVelocity.Y *= -1;
 
 			MoveBall(deltaTime);
 			break;
+		}
+	}
+
+	private void MoveScoreLabels(int deltaTime) {
+		for (var i = 0; i < _scoreLabels.Count; i++) {
+			var scoreLabel = _scoreLabels[i];
+			var shouldDispose = scoreLabel.Move(deltaTime);
+
+			if (!shouldDispose) continue;
+
+			_scoreLabels.Remove(scoreLabel);
+			Controls.Remove(scoreLabel);
 		}
 	}
 

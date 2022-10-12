@@ -29,7 +29,7 @@
 			this.paddle = new System.Windows.Forms.PictureBox();
 			this.ball = new System.Windows.Forms.PictureBox();
 			this.timer = new System.Timers.Timer();
-			this.label1 = new System.Windows.Forms.Label();
+			this.ScoreLabel = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.paddle)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.ball)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.timer)).BeginInit();
@@ -62,17 +62,17 @@
 			this.timer.SynchronizingObject = this;
 			this.timer.Elapsed += new System.Timers.ElapsedEventHandler(this.timer1_Elapsed);
 			// 
-			// label1
+			// ScoreLabel
 			// 
-			this.label1.AutoSize = true;
-			this.label1.BackColor = System.Drawing.Color.Black;
-			this.label1.ForeColor = System.Drawing.Color.White;
-			this.label1.Location = new System.Drawing.Point(18, 25);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(48, 17);
-			this.label1.TabIndex = 2;
-			this.label1.Text = "Score";
-			this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.ScoreLabel.AutoSize = true;
+			this.ScoreLabel.BackColor = System.Drawing.Color.Black;
+			this.ScoreLabel.ForeColor = System.Drawing.Color.White;
+			this.ScoreLabel.Location = new System.Drawing.Point(18, 25);
+			this.ScoreLabel.Name = "ScoreLabel";
+			this.ScoreLabel.Size = new System.Drawing.Size(48, 17);
+			this.ScoreLabel.TabIndex = 2;
+			this.ScoreLabel.Text = "Score";
+			this.ScoreLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
 			// GameForm
 			// 
@@ -81,11 +81,13 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 17F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(3)))), ((int)(((byte)(3)))), ((int)(((byte)(8)))));
+			this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.ClientSize = new System.Drawing.Size(1920, 1061);
-			this.Controls.Add(this.label1);
+			this.Controls.Add(this.ScoreLabel);
 			this.Controls.Add(this.ball);
 			this.Controls.Add(this.paddle);
 			this.Font = new System.Drawing.Font("JetBrains Mono", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ForeColor = System.Drawing.Color.Transparent;
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Margin = new System.Windows.Forms.Padding(4);
@@ -104,7 +106,7 @@
 			this.PerformLayout();
 		}
 
-		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.Label ScoreLabel;
 
 		private System.Timers.Timer timer;
 
