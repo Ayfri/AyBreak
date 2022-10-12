@@ -18,13 +18,12 @@ public partial class GameForm : Form {
 	};
 
 	private readonly List<Brick> _bricks;
-
 	private readonly List<ScoreLabel> _scoreLabels = new();
 
 	private bool _accelerate;
+	private bool _ballWaiting;
 	private int _score;
-
-	public PointF BallVelocity;
+	private PointF _ballVelocity;
 
 	public string BricksLayout = @"
 		--------------------
@@ -48,8 +47,6 @@ public partial class GameForm : Form {
 		ResetBall();
 
 		timer.Interval = TimerInterval;
-
-		Debug.WriteLine("debug");
 		_bricks = new List<Brick>(Regex.Replace(BricksLayout, @"\s+", "").Length);
 		GenerateBricks();
 	}
@@ -102,17 +99,19 @@ public partial class GameForm : Form {
 
 		if (_accelerate) BallSpeed = 2;
 		else BallSpeed = .65f;
-		
+
 		ScoreLabel.Text = $"Score: {_score}";
+
+		if (_ballWaiting) ball.Location = new Point(paddle.Left + paddle.Width / 2 - ball.Width / 2, paddle.Top - ball.Height);
 
 		MoveBall(deltaTime);
 		MovePaddle(deltaTime);
 		MoveScoreLabels(deltaTime);
 
-		if (ball.Left < 0 || ball.Left > ClientSize.Width - ball.Width) BallVelocity.X *= -1;
+		if (ball.Left < 0 || ball.Left > ClientSize.Width - ball.Width) _ballVelocity.X *= -1;
 
 		if (ball.Top < 0) {
-			BallVelocity.Y *= -1;
+			_ballVelocity.Y *= -1;
 		} else if (ball.Top > ClientSize.Height - ball.Height) {
 			ResetBall();
 			Invalidate();
@@ -149,10 +148,10 @@ public partial class GameForm : Form {
 			Controls.SetChildIndex(scoreLabel, 0);
 
 			// if the ball hit the brick from the side
-			if ((ballCenter.X < brickCenter.X && BallVelocity.X > 0) || (ballCenter.X > brickCenter.X && BallVelocity.X < 0)) BallVelocity.X *= -1;
+			if ((ballCenter.X < brickCenter.X && _ballVelocity.X > 0) || (ballCenter.X > brickCenter.X && _ballVelocity.X < 0)) _ballVelocity.X *= -1;
 
 			// if the ball hit the brick from the top or bottom
-			if ((ballCenter.Y < brickCenter.Y && BallVelocity.Y > 0) || (ballCenter.Y > brickCenter.Y && BallVelocity.Y < 0)) BallVelocity.Y *= -1;
+			if ((ballCenter.Y < brickCenter.Y && _ballVelocity.Y > 0) || (ballCenter.Y > brickCenter.Y && _ballVelocity.Y < 0)) _ballVelocity.Y *= -1;
 
 			MoveBall(deltaTime);
 			break;
@@ -182,33 +181,40 @@ public partial class GameForm : Form {
 		const int maxAngle = 0 - delta;
 		angle = Math.Max(minAngle, Math.Min(maxAngle, angle));
 
-		BallVelocity = new PointF((float)Math.Cos(angle * Math.PI / 180), (float)Math.Sin(angle * Math.PI / 180));
+		_ballVelocity = new PointF((float)Math.Cos(angle * Math.PI / 180), (float)Math.Sin(angle * Math.PI / 180));
 	}
 
 	private void MoveBall(int deltaTime) {
-		ball.Left += (int)Math.Round(BallVelocity.X * BallSpeed * deltaTime);
-		ball.Top += (int)Math.Round(BallVelocity.Y * BallSpeed * deltaTime);
+		ball.Left += (int)Math.Round(_ballVelocity.X * BallSpeed * deltaTime);
+		ball.Top += (int)Math.Round(_ballVelocity.Y * BallSpeed * deltaTime);
 	}
 
 	private void ResetBall() {
-		ball.Left = ClientSize.Width / 2 + ball.Width / 2;
-		ball.Top = ClientSize.Height / 2 + ball.Height / 2;
-		// set velocity to speed but in a random direction
+		_ballWaiting = true;
+		_ballVelocity = new PointF(0, 0);
+	}
 
-		var angle = Random.Next(0, 180);
-		BallVelocity = new PointF((float)Math.Cos(angle * Math.PI / 180), (float)Math.Sin(angle * Math.PI / 180));
+	private void LaunchBallFromPaddle() {
+		_ballWaiting = false;
+		var angle = Random.Next(165, 345);
+		_ballVelocity = new PointF((float)Math.Cos(angle * Math.PI / 180), (float)Math.Sin(angle * Math.PI / 180));
 	}
 
 	private void GameForm_KeyUp(object sender, KeyEventArgs e) {
 		if (e.KeyCode == Keys.Left) LeftPressed = false;
 		if (e.KeyCode == Keys.Right) RightPressed = false;
-		if (e.KeyCode == Keys.Space) _accelerate = false;
+		if (e.KeyCode == Keys.B) _accelerate = false;
 	}
 
 	private void GameForm_KeyDown(object sender, KeyEventArgs e) {
 		if (e.KeyCode == Keys.Left) LeftPressed = true;
 		if (e.KeyCode == Keys.Right) RightPressed = true;
-		if (e.KeyCode == Keys.Space) _accelerate = true;
+		if (e.KeyCode == Keys.B) _accelerate = true;
+
+		if (e.KeyCode == Keys.Space && _ballWaiting) {
+			_ballWaiting = false;
+			LaunchBallFromPaddle();
+		}
 		if (e.KeyCode == Keys.Escape) Close();
 		if (e.KeyCode == Keys.R) ResetBall();
 	}
