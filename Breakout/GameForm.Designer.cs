@@ -25,7 +25,6 @@
 		/// the contents of this method with the code editor.
 		/// </summary>
 		private void InitializeComponent() {
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GameForm));
 			this.paddle = new System.Windows.Forms.PictureBox();
 			this.ball = new System.Windows.Forms.PictureBox();
 			this.timer = new System.Timers.Timer();
@@ -49,7 +48,7 @@
 			// 
 			this.ball.BackColor = System.Drawing.Color.Transparent;
 			this.ball.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.ball.Image = ((System.Drawing.Image)(resources.GetObject("ball.Image")));
+			this.ball.Image = global::Breakout.Properties.Resources.ball;
 			this.ball.Location = new System.Drawing.Point(437, 776);
 			this.ball.Name = "ball";
 			this.ball.Size = new System.Drawing.Size(16, 16);
@@ -69,7 +68,7 @@
 			this.ScoreLabel.ForeColor = System.Drawing.Color.White;
 			this.ScoreLabel.Location = new System.Drawing.Point(18, 25);
 			this.ScoreLabel.Name = "ScoreLabel";
-			this.ScoreLabel.Size = new System.Drawing.Size(48, 17);
+			this.ScoreLabel.Size = new System.Drawing.Size(48, 18);
 			this.ScoreLabel.TabIndex = 2;
 			this.ScoreLabel.Text = "Score";
 			this.ScoreLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -78,7 +77,7 @@
 			// 
 			this.AccessibleDescription = "A game";
 			this.AccessibleName = "Breakout";
-			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 17F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 18F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(3)))), ((int)(((byte)(3)))), ((int)(((byte)(8)))));
 			this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
@@ -89,7 +88,6 @@
 			this.Font = new System.Drawing.Font("JetBrains Mono", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.ForeColor = System.Drawing.Color.Transparent;
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Margin = new System.Windows.Forms.Padding(4);
 			this.MinimizeBox = false;
 			this.Name = "GameForm";

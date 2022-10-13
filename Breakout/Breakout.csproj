@@ -8,7 +8,7 @@
         <OutputType>WinExe</OutputType>
         <RootNamespace>Breakout</RootNamespace>
         <AssemblyName>Breakout</AssemblyName>
-        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+        <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
         <Deterministic>true</Deterministic>
@@ -85,7 +85,7 @@
         <None Include="App.config"/>
     </ItemGroup>
     <ItemGroup>
-        <Folder Include="Utils"/>
+        <Content Include="Resources\ball.png"/>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
 </Project>
