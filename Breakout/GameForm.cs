@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Timers;
 using System.Windows.Forms;
+using Breakout.Properties;
 
 namespace Breakout;
 
@@ -47,19 +48,7 @@ public partial class GameForm : AbstractScene {
 	private int _lives = 5;
 	private int _score;
 
-	public string BricksLayout = @"
-		--------------------
-		----222222222222----
-		---22222333322222---
-		---22333333333322---
-		---22333333333322---
-		---22233333333222---
-		-----2222332222-----
-		-222-----33-----222-
-		-232-----33-----232-
-		-222-----22-----222-
-		--------------------
-	";
+	public string BricksLayout = new Level(3).Layout;
 
 	public GameForm() {
 		InitializeComponent();
@@ -86,13 +75,15 @@ public partial class GameForm : AbstractScene {
 	 * The bricks are added to the Controls collection.
 	 */
 	public void GenerateBricks() {
-		var rows = BricksLayout.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-
+		var rows = BricksLayout.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+		var longestRow = rows.Max(row => row.Length);
+		
 		for (var rowIndex = 0; rowIndex < rows.Length; rowIndex++) {
 			var row = rows[rowIndex];
+			if (row.Length == 0) continue;
 
 			for (var colIndex = 0; colIndex < row.Length; colIndex++) {
-				var startX = (ClientSize.Width - (Brick.BrickWidth + Brick.BrickMargin) * rows[0].Length) / 2;
+				var startX = (ClientSize.Width - (Brick.BrickWidth + Brick.BrickMargin) * longestRow) / 2;
 				var startY = (ClientSize.Height - (Brick.BrickHeight + Brick.BrickMargin) * rows.Length) / 5;
 
 				// search if character is included in a brick key

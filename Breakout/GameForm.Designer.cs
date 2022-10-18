@@ -77,7 +77,7 @@
 			this.LivesLabel.BackColor = System.Drawing.Color.Transparent;
 			this.LivesLabel.Font = new System.Drawing.Font("Consolas", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.LivesLabel.ForeColor = System.Drawing.Color.White;
-			this.LivesLabel.Location = new System.Drawing.Point(250, 25);
+			this.LivesLabel.Location = new System.Drawing.Point(173, 25);
 			this.LivesLabel.Name = "LivesLabel";
 			this.LivesLabel.Size = new System.Drawing.Size(90, 32);
 			this.LivesLabel.TabIndex = 4;

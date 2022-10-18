@@ -59,6 +59,7 @@
             <DependentUpon>GameForm.cs</DependentUpon>
         </Compile>
         <Compile Include="AbstractScene.cs" />
+        <Compile Include="Level.cs" />
         <Compile Include="MainForm.cs">
           <SubType>Form</SubType>
         </Compile>
@@ -100,7 +101,11 @@
         <None Include="App.config" />
     </ItemGroup>
     <ItemGroup>
+        <Content Include="levels.txt">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
         <Content Include="Resources\ball.png" />
+        <Content Include="resources\levels.txt" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
