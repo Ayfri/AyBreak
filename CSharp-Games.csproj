@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net5.0-windows</TargetFramework>
+        <TargetFramework>v4.8.1</TargetFramework>
         <RootNamespace>CSharp_Games</RootNamespace>
         <UseWindowsForms>true</UseWindowsForms>
         <LangVersion>11</LangVersion>

@@ -1,6 +1,4 @@
-﻿namespace Breakout;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -8,26 +6,44 @@ using System.Text.RegularExpressions;
 using System.Timers;
 using System.Windows.Forms;
 
+namespace Breakout;
+
+public enum Side {
+	Left,
+	Right,
+	Top,
+	Bottom
+}
+
 public static class Extensions {
 	public static int CenterX(this Rectangle rect) => rect.X + rect.Width / 2;
 	public static int CenterY(this Rectangle rect) => rect.Y + rect.Height / 2;
+	
+	public static int CenterX(this Control control) => control.Left + control.Width / 2;
+	public static int CenterY(this Control control) => control.Top + control.Height / 2;
+
+	public static Side? GetTouchingSide(this Rectangle rect, Rectangle other) {
+		if (rect.CenterY() <= other.CenterY() - other.Height / 2) return Side.Top;
+		if (rect.CenterY() >= other.CenterY() + other.Height / 2) return Side.Bottom;
+		if (rect.CenterX() > other.CenterX()) return Side.Right;
+		if (rect.CenterX() < other.CenterX()) return Side.Left;
+		return null;
+	}
 }
 
 public partial class GameForm : Form {
 	private const int TimerInterval = 1000 / 60;
-	private static readonly Random Random = new();
 
 	private static readonly Dictionary<string, BrickType> BricksTypes = new() {
 		{ " ", new BrickType { Name = "Empty", Color = Color.Transparent } },
 		{ "-23", new BrickType { Name = "Brick", Color = Color.Red, MaxHealthColor = Color.Orange, Score = 10, MaxHealth = 3 } }
 	};
 
+	private readonly Ball _ball = new();
 	private readonly List<Brick> _bricks;
 	private readonly List<ScoreLabel> _scoreLabels = new();
 
 	private bool _accelerate;
-	private PointF _ballVelocity;
-	private bool _ballWaiting;
 	private int _score;
 
 	public string BricksLayout = @"
@@ -46,17 +62,16 @@ public partial class GameForm : Form {
 
 	public GameForm() {
 		InitializeComponent();
+		Controls.Add(_ball);
+		_ball.Reset();
 
 		paddle.Left = ClientSize.Width / 2 - paddle.Width / 2;
 		paddle.Top = (int)(ClientSize.Height * .9) - paddle.Height;
-		ResetBall();
 
 		timer.Interval = TimerInterval;
 		_bricks = new List<Brick>(Regex.Replace(BricksLayout, @"\s+", "").Length);
 		GenerateBricks();
 	}
-
-	public float BallSpeed { get; set; }
 
 	public int PaddleSpeed { get; set; } = 1;
 
@@ -103,30 +118,30 @@ public partial class GameForm : Form {
 	private void timer1_Elapsed(object sender, ElapsedEventArgs e) {
 		var deltaTime = (int)(e.SignalTime - e.SignalTime.AddMilliseconds(-TimerInterval)).TotalMilliseconds;
 
-		if (_accelerate) BallSpeed = 2;
-		else BallSpeed = .65f;
+		if (_accelerate) _ball.Speed = 2;
+		else _ball.Speed = .65f;
 
 		ScoreLabel.Text = $"Score: {_score}";
 
-		if (_ballWaiting) ball.Location = new Point(paddle.Left + paddle.Width / 2 - ball.Width / 2, paddle.Top - ball.Height);
+		if (_ball.Waiting) _ball.Location = new Point(paddle.CenterX() - _ball.Width / 2, paddle.Top - _ball.Height);
 
-		MoveBall(deltaTime);
+		_ball.Move(deltaTime);
 		MovePaddle(deltaTime);
 		MoveScoreLabels(deltaTime);
 
-		if (ball.Left < 0 || ball.Left > ClientSize.Width - ball.Width) _ballVelocity.X *= -1;
+		if (_ball.Left < 0 || _ball.Left > ClientSize.Width - _ball.Width) _ball.Velocity.X *= -1;
 
-		if (ball.Top < 0) {
-			_ballVelocity.Y *= -1;
-		} else if (ball.Top > ClientSize.Height - ball.Height) {
-			ResetBall();
+		if (_ball.Top < 0) {
+			_ball.Velocity.Y *= -1;
+		} else if (_ball.Top > ClientSize.Height - _ball.Height) {
+			_ball.Reset();
 			Invalidate();
 			return;
 		}
 
 		BricksPhysics();
 
-		if (!ball.Bounds.IntersectsWith(paddle.Bounds)) return;
+		if (!_ball.Bounds.IntersectsWith(paddle.Bounds)) return;
 		PaddlePhysic();
 	}
 
@@ -136,11 +151,11 @@ public partial class GameForm : Form {
 	}
 
 	private void BricksPhysics() {
-		var touchingBricks = _bricks.Where(brick => ball.Bounds.IntersectsWith(brick.Bounds)).ToList();
+		var touchingBricks = _bricks.Where(brick => _ball.Bounds.IntersectsWith(brick.Bounds)).ToList();
 		if (touchingBricks.Count == 0) return;
 
 		// determine the side of the brick that the ball hit using the distance between the centers and the velocity
-		var ballRect = ball.Bounds;
+		var ballRect = _ball.Bounds;
 
 		// create a rectangle that is the size of all the bricks the ball is touching
 		var bricksRect = new Rectangle(
@@ -151,41 +166,20 @@ public partial class GameForm : Form {
 		);
 
 		// determine the side (only up, down, left or right) of the brick that the ball hit, search the most touching side
-		ArrowDirection touchedSide;
-		
-		if (
-			ballRect.CenterX() < bricksRect.CenterX() && ballRect.CenterY() < bricksRect.CenterY() + bricksRect.Height / 2 &&
-		    ballRect.CenterY() > bricksRect.CenterY() - bricksRect.Height / 2
-		) {
-			touchedSide = ArrowDirection.Left;
-		} else if (
-			ballRect.CenterX() > bricksRect.CenterX() && ballRect.CenterY() < bricksRect.CenterY() + bricksRect.Height / 2 &&
-			ballRect.CenterY() > bricksRect.CenterY() - bricksRect.Height / 2
-		) {
-			touchedSide = ArrowDirection.Right;
-		} else if (
-			ballRect.CenterY() < bricksRect.CenterY() && ballRect.CenterX() < bricksRect.CenterX() + bricksRect.Width / 2 &&
-           ballRect.CenterX() > bricksRect.CenterX() - bricksRect.Width / 2
-		) {
-			touchedSide = ArrowDirection.Up;
-		} else if (
-			ballRect.CenterY() > bricksRect.CenterY() && ballRect.CenterX() < bricksRect.CenterX() + bricksRect.Width / 2 &&
-		    ballRect.CenterX() > bricksRect.CenterX() - bricksRect.Width / 2
-		) {
-			touchedSide = ArrowDirection.Down;
-		} else {
-			return;
-		}
+		var touchedSide = ballRect.GetTouchingSide(bricksRect);
 
 		// determine the new velocity based on the side
 		switch (touchedSide) {
-			case ArrowDirection.Down or ArrowDirection.Up:
-				_ballVelocity.Y *= -1;
+			case Side.Bottom or Side.Top:
+				_ball.Velocity.Y *= -1;
 				break;
 
-			case ArrowDirection.Left or ArrowDirection.Right:
-				_ballVelocity.X *= -1;
+			case Side.Left or Side.Right:
+				_ball.Velocity.X *= -1;
 				break;
+
+			case null:
+				return;
 		}
 
 		// find the brick that was the most inside the ball
@@ -228,9 +222,7 @@ public partial class GameForm : Form {
 	}
 
 	private void PaddlePhysic() {
-		var ballCenterX = ball.Left + ball.Width / 2;
-		var paddleCenter = paddle.Left + paddle.Width / 2;
-		var angle = (ballCenterX - paddleCenter) * 90 / (paddle.Width / 2) - 90;
+		var angle = (_ball.CenterX() - paddle.CenterX()) * 90 / (paddle.Width / 2) - 90;
 
 		// clamp the angle to -165 to 15
 		const int delta = 15;
@@ -238,23 +230,7 @@ public partial class GameForm : Form {
 		const int maxAngle = 0 - delta;
 		angle = Math.Max(minAngle, Math.Min(maxAngle, angle));
 
-		_ballVelocity = new PointF((float)Math.Cos(angle * Math.PI / 180), (float)Math.Sin(angle * Math.PI / 180));
-	}
-
-	private void MoveBall(int deltaTime) {
-		ball.Left += (int)Math.Round(_ballVelocity.X * BallSpeed * deltaTime);
-		ball.Top += (int)Math.Round(_ballVelocity.Y * BallSpeed * deltaTime);
-	}
-
-	private void ResetBall() {
-		_ballWaiting = true;
-		_ballVelocity = new PointF(0, 0);
-	}
-
-	private void LaunchBallFromPaddle() {
-		_ballWaiting = false;
-		var angle = Random.Next(165, 345);
-		_ballVelocity = new PointF((float)Math.Cos(angle * Math.PI / 180), (float)Math.Sin(angle * Math.PI / 180));
+		_ball.Velocity = new PointF((float)Math.Cos(angle * Math.PI / 180), (float)Math.Sin(angle * Math.PI / 180));
 	}
 
 	private void GameForm_KeyUp(object sender, KeyEventArgs e) {
@@ -267,13 +243,8 @@ public partial class GameForm : Form {
 		if (e.KeyCode == Keys.Left) LeftPressed = true;
 		if (e.KeyCode == Keys.Right) RightPressed = true;
 		if (e.KeyCode == Keys.B) _accelerate = true;
-
-		if (e.KeyCode == Keys.Space && _ballWaiting) {
-			_ballWaiting = false;
-			LaunchBallFromPaddle();
-		}
-
+		if (e.KeyCode == Keys.Space && _ball.Waiting) _ball.LaunchBallFromPaddle();
 		if (e.KeyCode == Keys.Escape) Close();
-		if (e.KeyCode == Keys.R) ResetBall();
+		if (e.KeyCode == Keys.R) _ball.Reset();
 	}
 }

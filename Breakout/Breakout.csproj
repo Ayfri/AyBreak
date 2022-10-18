@@ -48,6 +48,7 @@
         <Reference Include="System.Xml"/>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Ball.cs"/>
         <Compile Include="Brick.cs"/>
         <Compile Include="BrickType.cs"/>
         <Compile Include="GameForm.cs">

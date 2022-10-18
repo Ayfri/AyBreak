@@ -26,11 +26,10 @@
 		/// </summary>
 		private void InitializeComponent() {
 			this.paddle = new System.Windows.Forms.PictureBox();
-			this.ball = new System.Windows.Forms.PictureBox();
 			this.timer = new System.Timers.Timer();
 			this.ScoreLabel = new System.Windows.Forms.Label();
+			this.debugLabel = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.paddle)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.ball)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.timer)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -43,17 +42,6 @@
 			this.paddle.Size = new System.Drawing.Size(110, 20);
 			this.paddle.TabIndex = 0;
 			this.paddle.TabStop = false;
-			// 
-			// ball
-			// 
-			this.ball.BackColor = System.Drawing.Color.Transparent;
-			this.ball.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.ball.Image = global::Breakout.Properties.Resources.ball;
-			this.ball.Location = new System.Drawing.Point(437, 776);
-			this.ball.Name = "ball";
-			this.ball.Size = new System.Drawing.Size(16, 16);
-			this.ball.TabIndex = 1;
-			this.ball.TabStop = false;
 			// 
 			// timer
 			// 
@@ -68,22 +56,30 @@
 			this.ScoreLabel.ForeColor = System.Drawing.Color.White;
 			this.ScoreLabel.Location = new System.Drawing.Point(18, 25);
 			this.ScoreLabel.Name = "ScoreLabel";
-			this.ScoreLabel.Size = new System.Drawing.Size(48, 18);
+			this.ScoreLabel.Size = new System.Drawing.Size(48, 17);
 			this.ScoreLabel.TabIndex = 2;
 			this.ScoreLabel.Text = "Score";
 			this.ScoreLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// debugLabel
+			// 
+			this.debugLabel.Location = new System.Drawing.Point(26, 77);
+			this.debugLabel.Name = "debugLabel";
+			this.debugLabel.Size = new System.Drawing.Size(100, 23);
+			this.debugLabel.TabIndex = 3;
+			this.debugLabel.Text = "label1";
 			// 
 			// GameForm
 			// 
 			this.AccessibleDescription = "A game";
 			this.AccessibleName = "Breakout";
-			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 18F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 17F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(3)))), ((int)(((byte)(3)))), ((int)(((byte)(8)))));
 			this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.ClientSize = new System.Drawing.Size(1920, 1061);
+			this.Controls.Add(this.debugLabel);
 			this.Controls.Add(this.ScoreLabel);
-			this.Controls.Add(this.ball);
 			this.Controls.Add(this.paddle);
 			this.Font = new System.Drawing.Font("JetBrains Mono", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.ForeColor = System.Drawing.Color.Transparent;
@@ -98,17 +94,16 @@
 			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.GameForm_KeyDown);
 			this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.GameForm_KeyUp);
 			((System.ComponentModel.ISupportInitialize)(this.paddle)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.ball)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.timer)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
 
+		private System.Windows.Forms.Label debugLabel;
+
 		private System.Windows.Forms.Label ScoreLabel;
 
 		private System.Timers.Timer timer;
-
-		private System.Windows.Forms.PictureBox ball;
 
 		private System.Windows.Forms.PictureBox paddle;
 

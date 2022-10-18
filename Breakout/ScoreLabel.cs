@@ -1,7 +1,7 @@
-﻿namespace Breakout;
-
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Forms;
+
+namespace Breakout;
 
 public sealed class ScoreLabel : Label {
 	private const float Speed = .4f;

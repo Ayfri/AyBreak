@@ -1,8 +1,8 @@
-﻿namespace Breakout;
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
+
+namespace Breakout;
 
 public class Brick : PictureBox {
 	public const int BrickWidth = 50;
@@ -32,9 +32,7 @@ public class Brick : PictureBox {
 		};
 
 		// if in debug mode, show health
-		if (Debugger.IsAttached) {
-			Controls.Add(_label);
-		}
+		if (Debugger.IsAttached) Controls.Add(_label);
 	}
 
 	public int Health {

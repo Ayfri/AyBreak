@@ -1,6 +1,6 @@
-﻿namespace Breakout;
+﻿using System.Drawing;
 
-using System.Drawing;
+namespace Breakout;
 
 public class BrickType {
 	public BrickType() => MaxHealthColor = Color;
