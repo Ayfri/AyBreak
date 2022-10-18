@@ -27,13 +27,13 @@ public class Ball : PictureBox {
 
 	public void Reset() {
 		Waiting = true;
-		Velocity = new PointF(0, 0);
+		Velocity = new(0, 0);
 	}
 
 	public void LaunchBallFromPaddle() {
 		Waiting = false;
 		const int delta = 15;
 		var angle = Random.Next(180 - delta, 360 - delta);
-		Velocity = new PointF((float)Math.Cos(angle * Math.PI / 180), (float)Math.Sin(angle * Math.PI / 180));
+		Velocity = new((float)Math.Cos(angle * Math.PI / 180), (float)Math.Sin(angle * Math.PI / 180));
 	}
 }

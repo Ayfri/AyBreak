@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace Breakout;
+
+namespace Breakout; 
 
 internal static class Program {
+	public static MainForm MainForm = null!;
+
 	[STAThread]
 	private static void Main() {
 		Application.EnableVisualStyles();
 		Application.SetCompatibleTextRenderingDefault(false);
-		Application.Run(new GameForm());
+		MainForm = new();
+		Application.Run(MainForm);
 	}
 }

@@ -18,7 +18,7 @@ public enum Side {
 public static class Extensions {
 	public static int CenterX(this Rectangle rect) => rect.X + rect.Width / 2;
 	public static int CenterY(this Rectangle rect) => rect.Y + rect.Height / 2;
-	
+
 	public static int CenterX(this Control control) => control.Left + control.Width / 2;
 	public static int CenterY(this Control control) => control.Top + control.Height / 2;
 
@@ -31,12 +31,12 @@ public static class Extensions {
 	}
 }
 
-public partial class GameForm : Form {
+public partial class GameForm : AbstractScene {
 	private const int TimerInterval = 1000 / 60;
 
 	private static readonly Dictionary<string, BrickType> BricksTypes = new() {
-		{ " ", new BrickType { Name = "Empty", Color = Color.Transparent } },
-		{ "-23", new BrickType { Name = "Brick", Color = Color.Red, MaxHealthColor = Color.Orange, Score = 10, MaxHealth = 3 } }
+		{ " ", new() { Name = "Empty", Color = Color.Transparent } },
+		{ "-23", new() { Name = "Brick", Color = Color.Red, MaxHealthColor = Color.Orange, Score = 10, MaxHealth = 3 } }
 	};
 
 	private readonly Ball _ball = new();
@@ -44,6 +44,7 @@ public partial class GameForm : Form {
 	private readonly List<ScoreLabel> _scoreLabels = new();
 
 	private bool _accelerate;
+	private int _lives = 5;
 	private int _score;
 
 	public string BricksLayout = @"
@@ -69,7 +70,7 @@ public partial class GameForm : Form {
 		paddle.Top = (int)(ClientSize.Height * .9) - paddle.Height;
 
 		timer.Interval = TimerInterval;
-		_bricks = new List<Brick>(Regex.Replace(BricksLayout, @"\s+", "").Length);
+		_bricks = new(Regex.Replace(BricksLayout, @"\s+", "").Length);
 		GenerateBricks();
 	}
 
@@ -118,12 +119,15 @@ public partial class GameForm : Form {
 	private void timer1_Elapsed(object sender, ElapsedEventArgs e) {
 		var deltaTime = (int)(e.SignalTime - e.SignalTime.AddMilliseconds(-TimerInterval)).TotalMilliseconds;
 
+		debugLabel.Visible = debugLabel.Text.Length == 0;
+
 		if (_accelerate) _ball.Speed = 2;
 		else _ball.Speed = .65f;
 
 		ScoreLabel.Text = $"Score: {_score}";
+		LivesLabel.Text = $"Lives: {_lives}";
 
-		if (_ball.Waiting) _ball.Location = new Point(paddle.CenterX() - _ball.Width / 2, paddle.Top - _ball.Height);
+		if (_ball.Waiting) _ball.Location = new(paddle.CenterX() - _ball.Width / 2, paddle.Top - _ball.Height);
 
 		_ball.Move(deltaTime);
 		MovePaddle(deltaTime);
@@ -135,6 +139,7 @@ public partial class GameForm : Form {
 			_ball.Velocity.Y *= -1;
 		} else if (_ball.Top > ClientSize.Height - _ball.Height) {
 			_ball.Reset();
+			_lives--;
 			Invalidate();
 			return;
 		}
@@ -230,21 +235,20 @@ public partial class GameForm : Form {
 		const int maxAngle = 0 - delta;
 		angle = Math.Max(minAngle, Math.Min(maxAngle, angle));
 
-		_ball.Velocity = new PointF((float)Math.Cos(angle * Math.PI / 180), (float)Math.Sin(angle * Math.PI / 180));
+		_ball.Velocity = new((float)Math.Cos(angle * Math.PI / 180), (float)Math.Sin(angle * Math.PI / 180));
 	}
-
-	private void GameForm_KeyUp(object sender, KeyEventArgs e) {
-		if (e.KeyCode == Keys.Left) LeftPressed = false;
-		if (e.KeyCode == Keys.Right) RightPressed = false;
-		if (e.KeyCode == Keys.B) _accelerate = false;
-	}
-
-	private void GameForm_KeyDown(object sender, KeyEventArgs e) {
+	
+	public override void KeyDown(KeyEventArgs e) {
 		if (e.KeyCode == Keys.Left) LeftPressed = true;
 		if (e.KeyCode == Keys.Right) RightPressed = true;
 		if (e.KeyCode == Keys.B) _accelerate = true;
 		if (e.KeyCode == Keys.Space && _ball.Waiting) _ball.LaunchBallFromPaddle();
-		if (e.KeyCode == Keys.Escape) Close();
 		if (e.KeyCode == Keys.R) _ball.Reset();
+	}
+	
+	public override void KeyUp(KeyEventArgs e) {
+		if (e.KeyCode == Keys.Left) LeftPressed = false;
+		if (e.KeyCode == Keys.Right) RightPressed = false;
+		if (e.KeyCode == Keys.B) _accelerate = false;
 	}
 }

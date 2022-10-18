@@ -22,11 +22,11 @@ public class Brick : PictureBox {
 		BackColor = type.GetColor(Health);
 		Health = type.MaxHealth;
 
-		_label = new Label {
+		_label = new() {
 			AutoSize = true,
-			Font = new Font("Arial", 8),
+			Font = new("Arial", 8),
 			ForeColor = Color.White,
-			Location = new Point(0, 0),
+			Location = new(0, 0),
 			Tag = new[] { "BrickHealth" },
 			Text = Health.ToString()
 		};

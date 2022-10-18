@@ -29,6 +29,7 @@
 			this.timer = new System.Timers.Timer();
 			this.ScoreLabel = new System.Windows.Forms.Label();
 			this.debugLabel = new System.Windows.Forms.Label();
+			this.LivesLabel = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.paddle)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.timer)).BeginInit();
 			this.SuspendLayout();
@@ -67,37 +68,39 @@
 			this.debugLabel.Name = "debugLabel";
 			this.debugLabel.Size = new System.Drawing.Size(100, 23);
 			this.debugLabel.TabIndex = 3;
-			this.debugLabel.Text = "label1";
+			// 
+			// LivesLabel
+			// 
+			this.LivesLabel.Location = new System.Drawing.Point(173, 25);
+			this.LivesLabel.Name = "LivesLabel";
+			this.LivesLabel.Size = new System.Drawing.Size(100, 23);
+			this.LivesLabel.TabIndex = 4;
+			this.LivesLabel.Text = "Lives";
 			// 
 			// GameForm
 			// 
 			this.AccessibleDescription = "A game";
 			this.AccessibleName = "Breakout";
-			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 17F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(3)))), ((int)(((byte)(3)))), ((int)(((byte)(8)))));
 			this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.ClientSize = new System.Drawing.Size(1920, 1061);
+			this.Controls.Add(this.LivesLabel);
 			this.Controls.Add(this.debugLabel);
 			this.Controls.Add(this.ScoreLabel);
 			this.Controls.Add(this.paddle);
 			this.Font = new System.Drawing.Font("JetBrains Mono", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.ForeColor = System.Drawing.Color.Transparent;
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
 			this.Margin = new System.Windows.Forms.Padding(4);
-			this.MinimizeBox = false;
 			this.Name = "GameForm";
 			this.RightToLeft = System.Windows.Forms.RightToLeft.No;
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Breakout";
-			this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.GameForm_KeyDown);
-			this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.GameForm_KeyUp);
 			((System.ComponentModel.ISupportInitialize)(this.paddle)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.timer)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+
+		private System.Windows.Forms.Label LivesLabel;
 
 		private System.Windows.Forms.Label debugLabel;
 
