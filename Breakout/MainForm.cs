@@ -10,8 +10,8 @@ public partial class MainForm : Form {
 	public MainForm() {
 		InitializeComponent();
 		Controls.Add(_scene);
-		_scene.Dock = DockStyle.Fill;
 		_scene.Location = new(0, 0);
+		_scene.Dock = DockStyle.Fill;
 		_scene.Size = Size;
 	}
 
@@ -19,7 +19,7 @@ public partial class MainForm : Form {
 		_scene.Dispose();
 		_scene = newScene;
 		Controls.Add(_scene);
-		_scene.Location = new(0, 0);
+		_scene.Location = new();
 		_scene.Dock = DockStyle.Fill;
 		_scene.Size = Size;
 	}

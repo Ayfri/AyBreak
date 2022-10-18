@@ -16,23 +16,7 @@ public enum Side {
 	Bottom
 }
 
-public static class Extensions {
-	public static int CenterX(this Rectangle rect) => rect.X + rect.Width / 2;
-	public static int CenterY(this Rectangle rect) => rect.Y + rect.Height / 2;
-
-	public static int CenterX(this Control control) => control.Left + control.Width / 2;
-	public static int CenterY(this Control control) => control.Top + control.Height / 2;
-
-	public static Side? GetTouchingSide(this Rectangle rect, Rectangle other) {
-		if (rect.CenterY() <= other.CenterY() - other.Height / 2) return Side.Top;
-		if (rect.CenterY() >= other.CenterY() + other.Height / 2) return Side.Bottom;
-		if (rect.CenterX() > other.CenterX()) return Side.Right;
-		if (rect.CenterX() < other.CenterX()) return Side.Left;
-		return null;
-	}
-}
-
-public partial class GameForm : AbstractScene {
+public partial class GameScene : AbstractScene {
 	private const int TimerInterval = 1000 / 60;
 
 	private static readonly Dictionary<string, BrickType> BricksTypes = new() {
@@ -52,6 +36,8 @@ public partial class GameForm : AbstractScene {
 	};
 
 	private readonly List<Brick> _bricks;
+
+	private readonly string _bricksLayout;
 	private readonly List<ScoreLabel> _scoreLabels = new();
 
 	public readonly Ball Ball = new();
@@ -60,9 +46,8 @@ public partial class GameForm : AbstractScene {
 	private int _lives = 5;
 	private int _score;
 
-	public string BricksLayout = new Level(6).Layout;
-
-	public GameForm() {
+	public GameScene(string bricksLayout) {
+		_bricksLayout = bricksLayout;
 		InitializeComponent();
 		Controls.Add(Ball);
 		Ball.Reset();
@@ -71,12 +56,11 @@ public partial class GameForm : AbstractScene {
 		paddle.Top = (int)(ClientSize.Height * .9) - paddle.Height;
 
 		timer.Interval = TimerInterval;
-		_bricks = new(Regex.Replace(BricksLayout, @"\s+", "").Length);
+		_bricks = new(Regex.Replace(_bricksLayout, @"\s+", "").Length);
 		GenerateBricks();
 	}
 
 	public int PaddleSpeed { get; set; } = 1;
-
 	private bool LeftPressed { get; set; }
 	private bool RightPressed { get; set; }
 
@@ -104,7 +88,7 @@ public partial class GameForm : AbstractScene {
 	 * The bricks are added to the Controls collection.
 	 */
 	public void GenerateBricks() {
-		var rows = BricksLayout.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+		var rows = _bricksLayout.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 		var longestRow = rows.Max(row => row.Length);
 
 		for (var rowIndex = 0; rowIndex < rows.Length; rowIndex++) {

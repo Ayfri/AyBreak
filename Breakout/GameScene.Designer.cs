@@ -1,5 +1,5 @@
 ﻿namespace Breakout {
-	partial class GameForm {
+	partial class GameScene {
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
@@ -83,7 +83,7 @@
 			this.LivesLabel.TabIndex = 4;
 			this.LivesLabel.Text = "Lives";
 			// 
-			// GameForm
+			// GameScene
 			// 
 			this.AccessibleDescription = "A game";
 			this.AccessibleName = "Breakout";

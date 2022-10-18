@@ -7,7 +7,7 @@ public class OnCollision {
 	public Ball Ball;
 	public Brick Brick;
 	public Point BrickPosition;
-	public GameForm Game;
+	public GameScene Game;
 	public Side Side;
 }
 

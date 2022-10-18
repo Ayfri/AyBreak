@@ -4,20 +4,10 @@ using System.IO;
 
 namespace Breakout;
 
-public class Level {
-	public readonly int Index;
-	public readonly string Layout;
-
-	public Level(int index) {
-		Index = index;
-		Layout = LevelLoader.LoadLevel(index);
-	}
-}
-
-internal static class LevelLoader {
+internal static class LevelManager {
 	private const string LevelsFile = "levels.txt";
 
-	static LevelLoader() {
+	static LevelManager() {
 		Debug.WriteLine("Levels:");
 
 		for (var index = 0; index < Levels.Length; index++) {

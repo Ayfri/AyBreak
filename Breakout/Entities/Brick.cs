@@ -43,7 +43,7 @@ public class Brick : PictureBox {
 		}
 	}
 
-	public void Hit(GameForm game, Side touchedSide) {
+	public void Hit(GameScene game, Side touchedSide) {
 		Health--;
 		if (Health > 0) return;
 		game.RemoveBrick(this);
@@ -55,6 +55,7 @@ public class Brick : PictureBox {
 			Side = touchedSide,
 			BrickPosition = game.GetBrickPos(this)
 		};
+
 		Type.OnCollision?.Invoke(collisionPayload);
 	}
 }

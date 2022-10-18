@@ -8,8 +8,7 @@ namespace Breakout;
 public class Ball : PictureBox {
 	private static readonly Random Random = new();
 	public PointF Velocity;
-
-
+	
 	public Ball() {
 		Image = Resources.ball;
 		Width = Image.Width;

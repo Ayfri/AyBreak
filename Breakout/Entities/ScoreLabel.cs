@@ -17,10 +17,10 @@ public sealed class ScoreLabel : Label {
 		AutoSize = true;
 		FontHeight = 20;
 	}
-
+	
 	public new bool Move(int deltaTime) {
 		Top -= (int)(Speed * deltaTime);
-		// change opacity from 256 to 0
+		// change opacity from 255 to 0
 		ForeColor = Color.FromArgb(256 - (Top - _maxY) * 256 / (Location.Y - _maxY), ForeColor);
 		return Top <= _maxY;
 	}

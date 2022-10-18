@@ -19,7 +19,11 @@ public class MainMenuForm : AbstractScene {
 		static (_, _) => { Application.Exit(); }
 	);
 
-	private readonly MenuButton _startButton = new("Start", 0, static (_, _) => { Program.MainForm.ChangeScene(new GameForm()); });
+	private readonly MenuButton _startButton = new(
+		"Start",
+		0,
+		static (_, _) => Program.MainForm.ChangeScene(new LevelSelectionScene())
+	);
 
 	private readonly Label _titleLabel = new() {
 		Text = "Breakout",
@@ -27,7 +31,6 @@ public class MainMenuForm : AbstractScene {
 		Width = 480,
 		Height = 120,
 		ForeColor = Color.White,
-		// TextAlign = ContentAlignment.MiddleCenter,
 		Location = new(MainForm.GameSize.Width / 2 - 230, MainForm.GameSize.Height / 6)
 	};
 
