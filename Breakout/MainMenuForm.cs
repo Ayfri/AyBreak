@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -13,33 +14,47 @@ public class MainMenuForm : AbstractScene {
 			Location = new(MainForm.GameSize.Width / 2 - Width / 2, MainForm.GameSize.Height / 2 - Height / 2 + offsetY);
 			Font = new("Arial", 20);
 			BackColor = Color.FromArgb(20, 20, 30);
-			ForeColor = Color.FromArgb(255, 255, 255);
+			ForeColor = Color.White;
 			FlatStyle = FlatStyle.Flat;
 			FlatAppearance.BorderSize = 1;
-			FlatAppearance.BorderColor = Color.FromArgb(255, 255, 255);
-			var p = new GraphicsPath();
-			p.AddEllipse(1, 1, Width - 4, Height - 4);
-			Region = new(p);
+			FlatAppearance.BorderColor = Color.White;
 			Click += onClick;
 		}
 	}
 
 	private MenuButton _exitButton = new(
 		"Exit",
-		100,
+		150,
 		static (_, _) => {
 			Application.Exit();
 		}
 	);
 
-	private MenuButton _startButton = new("Start", -100, static (_, _) => {
+	private MenuButton _startButton = new("Start", 0, static (_, _) => {
 		Program.MainForm.ChangeScene(new GameForm());
 	});
+	
+	private Label _titleLabel = new() {
+		Text = "Breakout",
+		Font = new("Candara", 80),
+		Width = 480,
+		Height = 120,
+		ForeColor = Color.White,
+		// TextAlign = ContentAlignment.MiddleCenter,
+		Location = new(MainForm.GameSize.Width / 2 - 230, MainForm.GameSize.Height / 6)
+	};
+
+	private Label _creditsLabel = new() {
+		AutoSize = true,
+		Text = "Ayfri",
+		Font = new("Candara", 30),
+		ForeColor = Color.White,
+		Location = new((int)(MainForm.GameSize.Width * .9), (int)(MainForm.GameSize.Height * .9))
+	};
 	
 	public MainMenuForm() {
 		BackColor = Color.FromArgb(15, 15, 20);
 		Size = MainForm.GameSize;
-		Controls.Add(_exitButton);
-		Controls.Add(_startButton);
+		Controls.AddRange(new Control[] {_startButton, _exitButton, _titleLabel, _creditsLabel});
 	}
 }

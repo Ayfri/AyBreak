@@ -116,7 +116,7 @@ public partial class GameForm : AbstractScene {
 		}
 	}
 
-	private void timer1_Elapsed(object sender, ElapsedEventArgs e) {
+	private void timer_Elapsed(object sender, ElapsedEventArgs e) {
 		var deltaTime = (int)(e.SignalTime - e.SignalTime.AddMilliseconds(-TimerInterval)).TotalMilliseconds;
 
 		debugLabel.Visible = debugLabel.Text.Length == 0;
@@ -127,11 +127,11 @@ public partial class GameForm : AbstractScene {
 		ScoreLabel.Text = $"Score: {_score}";
 		LivesLabel.Text = $"Lives: {_lives}";
 
-		if (_ball.Waiting) _ball.Location = new(paddle.CenterX() - _ball.Width / 2, paddle.Top - _ball.Height);
-
-		_ball.Move(deltaTime);
 		MovePaddle(deltaTime);
 		MoveScoreLabels(deltaTime);
+		
+		if (_ball.Waiting) _ball.Location = new(paddle.CenterX() - _ball.Width / 2, paddle.Top - _ball.Height);
+		else _ball.Move(deltaTime);
 
 		if (_ball.Left < 0 || _ball.Left > ClientSize.Width - _ball.Width) _ball.Velocity.X *= -1;
 
