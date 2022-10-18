@@ -239,6 +239,7 @@ public partial class GameScene : AbstractScene {
 		if (e.KeyCode == Keys.B) _accelerate = true;
 		if (e.KeyCode == Keys.Space && Ball.Waiting) Ball.LaunchBallFromPaddle();
 		if (e.KeyCode == Keys.R) Ball.Reset();
+		if (e.KeyCode == Keys.Escape) Program.MainForm.ChangeScene(new LevelSelectionScene());
 	}
 
 	public override void KeyUp(KeyEventArgs e) {
