@@ -1,8 +1,18 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 
 namespace Breakout;
 
+public class OnCollision {
+	public Ball Ball;
+	public Brick Brick;
+	public Point BrickPosition;
+	public GameForm Game;
+	public Side Side;
+}
+
 public class BrickType {
+	public Action<OnCollision>? OnCollision;
 	public BrickType() => MaxHealthColor = Color;
 	public string Name { get; set; } = "";
 	public Color Color { get; set; }
@@ -17,7 +27,7 @@ public class BrickType {
 	// return gradient between max health color and current health color, gradiant is 0 to 256
 	// when currentHealth is 1, Color is returned, when health is MaxHealth, MaxHealthColor is returned
 	public Color GetColor(int currentHealth) {
-		if (currentHealth == 1) return Color;
+		if (currentHealth == 1 || MaxHealth == 1) return Color;
 		if (currentHealth == MaxHealth) return MaxHealthColor;
 		var r = (Color.R * (MaxHealth - currentHealth) + MaxHealthColor.R * currentHealth) / MaxHealth;
 		var g = (Color.G * (MaxHealth - currentHealth) + MaxHealthColor.G * currentHealth) / MaxHealth;

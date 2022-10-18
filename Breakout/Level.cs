@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using Breakout.Properties;
 
-namespace Breakout; 
+namespace Breakout;
 
 public class Level {
 	public readonly int Index;
@@ -15,13 +14,8 @@ public class Level {
 	}
 }
 
-static class LevelLoader {
+internal static class LevelLoader {
 	private const string LevelsFile = "levels.txt";
-
-	// public static string[] Levels => Resources.levels.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-	public static string[] Levels => File.ReadAllText(LevelsFile).Split(new[] { ";;;;;;;;;;;;;;;;;;;;;" }, StringSplitOptions.RemoveEmptyEntries);
-	
-	public static string LoadLevel(int index) => Levels[index];
 
 	static LevelLoader() {
 		Debug.WriteLine("Levels:");
@@ -31,4 +25,8 @@ static class LevelLoader {
 			Debug.WriteLine($"Level {index} :\n" + level);
 		}
 	}
+
+	public static string[] Levels => File.ReadAllText(LevelsFile).Split(new[] { ";;;;;;;;;;;;;;;;;;;;;" }, StringSplitOptions.RemoveEmptyEntries);
+
+	public static string LoadLevel(int index) => Levels[index];
 }

@@ -31,7 +31,6 @@ public class Brick : PictureBox {
 			Text = Health.ToString()
 		};
 
-		// if in debug mode, show health
 		if (Debugger.IsAttached) Controls.Add(_label);
 	}
 
@@ -44,5 +43,18 @@ public class Brick : PictureBox {
 		}
 	}
 
-	public bool Hit() => --Health == 0;
+	public void Hit(GameForm game, Side touchedSide) {
+		Health--;
+		if (Health > 0) return;
+		game.RemoveBrick(this);
+
+		var collisionPayload = new OnCollision {
+			Game = game,
+			Brick = this,
+			Ball = game.Ball,
+			Side = touchedSide,
+			BrickPosition = game.GetBrickPos(this)
+		};
+		Type.OnCollision?.Invoke(collisionPayload);
+	}
 }

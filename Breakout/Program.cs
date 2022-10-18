@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Windows.Forms;
 
-
-namespace Breakout; 
+namespace Breakout;
 
 internal static class Program {
 	public static MainForm MainForm = null!;
