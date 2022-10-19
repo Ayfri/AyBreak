@@ -17,7 +17,7 @@ public sealed class ScoreLabel : Label {
 		AutoSize = true;
 		FontHeight = 20;
 	}
-	
+
 	public new bool Move(int deltaTime) {
 		Top -= (int)(Speed * deltaTime);
 		// change opacity from 255 to 0

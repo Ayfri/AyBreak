@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace Breakout;
 
-public class MainMenuForm : AbstractScene {
+public class MainMenuScene : AbstractScene {
 	private readonly Label _creditsLabel = new() {
 		AutoSize = true,
 		Text = "Ayfri",
@@ -34,7 +34,7 @@ public class MainMenuForm : AbstractScene {
 		Location = new(MainForm.GameSize.Width / 2 - 230, MainForm.GameSize.Height / 6)
 	};
 
-	public MainMenuForm() {
+	public MainMenuScene() {
 		BackColor = Color.FromArgb(15, 15, 20);
 		Size = MainForm.GameSize;
 		Controls.AddRange(new Control[] { _startButton, _exitButton, _titleLabel, _creditsLabel });

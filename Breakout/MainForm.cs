@@ -5,7 +5,7 @@ namespace Breakout;
 
 public partial class MainForm : Form {
 	public static Size GameSize = new(1920, 1080);
-	private AbstractScene _scene = new MainMenuForm();
+	private AbstractScene _scene = new MainMenuScene();
 
 	public MainForm() {
 		InitializeComponent();

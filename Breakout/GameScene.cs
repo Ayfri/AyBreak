@@ -16,6 +16,68 @@ public enum Side {
 	Bottom
 }
 
+public sealed class PauseMenu : Panel {
+	public PauseMenu() {
+		BackColor = Color.FromArgb(100, 40, 40, 40);
+		Size = new(600, 450);
+
+		var label = new Label {
+			AutoSize = true,
+			Font = new("Candara", 40),
+			ForeColor = Color.White,
+			Text = "Paused",
+			Width = 40 * 7,
+		};
+		var textMeasure = TextRenderer.MeasureText(label.Text, label.Font);
+		label.Location = new((Width - textMeasure.Width) / 2, 50);
+
+		var resumeButton = new PauseMenuButton(
+			"Resume",
+			(_, _) => {
+				(Parent as GameScene)?.HidePauseMenu();
+			}
+		);
+
+		resumeButton.Location = new((Width - resumeButton.Width) / 2, (Height - resumeButton.Height) / 2);
+		
+		var restartButton = new PauseMenuButton(
+			"Restart",
+			(_, _) => {
+				var layout = (Parent as GameScene)?.BricksLayout;
+				if (layout == null) Program.MainForm.ChangeScene(new LevelSelectionScene());
+				else Program.MainForm.ChangeScene(new GameScene(layout));
+			}
+		);
+		restartButton.Location = new((Width - restartButton.Width) / 2, (Height - restartButton.Height) / 2 + 75);
+
+		var exitButton = new PauseMenuButton(
+			"Exit",
+			static (_, _) => Program.MainForm.ChangeScene(new MainMenuScene())
+		);
+		exitButton.Location = new((Width - exitButton.Width) / 2, (Height - exitButton.Height) / 2 + 150);
+
+
+		Controls.Add(label);
+		Controls.Add(resumeButton);
+		Controls.Add(restartButton);
+		Controls.Add(exitButton);
+	}
+
+	private sealed class PauseMenuButton : Button {
+		public PauseMenuButton(string text, EventHandler clickHandler) {
+			Text = text;
+			Click += clickHandler;
+			Width = 200;
+			Height = 50;
+			BackColor = Color.FromArgb(30, 30, 30);
+			ForeColor = Color.White;
+			FlatStyle = FlatStyle.Flat;
+			FlatAppearance.BorderSize = 0;
+			Font = new("Candara", 20);
+		}
+	}
+}
+
 public partial class GameScene : AbstractScene {
 	private const int TimerInterval = 1000 / 60;
 
@@ -37,7 +99,8 @@ public partial class GameScene : AbstractScene {
 
 	private readonly List<Brick> _bricks;
 
-	private readonly string _bricksLayout;
+	public readonly string BricksLayout;
+	private readonly PauseMenu _pauseMenu = new();
 	private readonly List<ScoreLabel> _scoreLabels = new();
 
 	public readonly Ball Ball = new();
@@ -47,16 +110,17 @@ public partial class GameScene : AbstractScene {
 	private int _score;
 
 	public GameScene(string bricksLayout) {
-		_bricksLayout = bricksLayout;
+		BricksLayout = bricksLayout;
 		InitializeComponent();
 		Controls.Add(Ball);
 		Ball.Reset();
+		_pauseMenu.Location = new(ClientSize.Width / 2 - _pauseMenu.Width / 2, ClientSize.Height / 2 - _pauseMenu.Height / 2);
 
 		paddle.Left = ClientSize.Width / 2 - paddle.Width / 2;
 		paddle.Top = (int)(ClientSize.Height * .9) - paddle.Height;
 
 		timer.Interval = TimerInterval;
-		_bricks = new(Regex.Replace(_bricksLayout, @"\s+", "").Length);
+		_bricks = new(Regex.Replace(BricksLayout, @"\s+", "").Length);
 		GenerateBricks();
 	}
 
@@ -88,7 +152,7 @@ public partial class GameScene : AbstractScene {
 	 * The bricks are added to the Controls collection.
 	 */
 	public void GenerateBricks() {
-		var rows = _bricksLayout.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+		var rows = BricksLayout.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 		var longestRow = rows.Max(row => row.Length);
 
 		for (var rowIndex = 0; rowIndex < rows.Length; rowIndex++) {
@@ -239,12 +303,27 @@ public partial class GameScene : AbstractScene {
 		if (e.KeyCode == Keys.B) _accelerate = true;
 		if (e.KeyCode == Keys.Space && Ball.Waiting) Ball.LaunchBallFromPaddle();
 		if (e.KeyCode == Keys.R) Ball.Reset();
-		if (e.KeyCode == Keys.Escape) Program.MainForm.ChangeScene(new LevelSelectionScene());
+
+		if (e.KeyCode == Keys.Escape) {
+			if (Controls.Contains(_pauseMenu)) HidePauseMenu();
+			else ShowPauseMenu();
+		}
 	}
 
 	public override void KeyUp(KeyEventArgs e) {
 		if (e.KeyCode == Keys.Left) LeftPressed = false;
 		if (e.KeyCode == Keys.Right) RightPressed = false;
 		if (e.KeyCode == Keys.B) _accelerate = false;
+	}
+
+	private void ShowPauseMenu() {
+		Controls.Add(_pauseMenu);
+		_pauseMenu.BringToFront();
+		timer.Stop();
+	}
+
+	public void HidePauseMenu() {
+		Controls.Remove(_pauseMenu);
+		timer.Start();
 	}
 }
