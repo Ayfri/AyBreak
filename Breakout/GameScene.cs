@@ -189,7 +189,7 @@ public partial class GameScene : AbstractScene {
 	private void GameLoop(object sender, ElapsedEventArgs e) {
 		var deltaTime = (int)(e.SignalTime - e.SignalTime.AddMilliseconds(-TimerInterval)).TotalMilliseconds;
 
-		debugLabel.Visible = debugLabel.Text.Length == 0;
+		debugLabel.Visible = debugLabel.Text.Length > 0;
 
 		if (_accelerate) Ball.Speed = 2;
 		else Ball.Speed = .9f;
@@ -279,14 +279,16 @@ public partial class GameScene : AbstractScene {
 	}
 
 	private void PaddlePhysic() {
-		var angle = (Ball.CenterX() - paddle.CenterX()) * 90 / (paddle.Width / 2) - 90;
+		var bounceAngle = Math.Atan2(-Ball.Velocity.Y, Ball.Velocity.X);
+		var paddleAngle = (Ball.CenterX() - paddle.CenterX()) * 90 / (paddle.Width / 2d) - 90;
+		var finalAngle = bounceAngle * .1 + paddleAngle * .9;
 
 		const int delta = 15;
 		const int minAngle = -180 + delta;
 		const int maxAngle = 0 - delta;
-		angle = Math.Max(minAngle, Math.Min(maxAngle, angle));
+		finalAngle = Math.Max(minAngle, Math.Min(maxAngle, finalAngle));
 
-		Ball.Velocity = new((float)Math.Cos(angle * Math.PI / 180), (float)Math.Sin(angle * Math.PI / 180));
+		Ball.Velocity = new((float)Math.Cos(finalAngle * Math.PI / 180d), (float)Math.Sin(finalAngle * Math.PI / 180d));
 	}
 
 	public override void KeyDown(KeyEventArgs e) {

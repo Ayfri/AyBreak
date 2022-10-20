@@ -65,10 +65,11 @@
 			// 
 			// debugLabel
 			// 
+			this.debugLabel.AutoSize = true;
 			this.debugLabel.Font = new System.Drawing.Font("Consolas", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.debugLabel.Location = new System.Drawing.Point(30, 77);
 			this.debugLabel.Name = "debugLabel";
-			this.debugLabel.Size = new System.Drawing.Size(100, 23);
+			this.debugLabel.Size = new System.Drawing.Size(0, 32);
 			this.debugLabel.TabIndex = 3;
 			// 
 			// LivesLabel
