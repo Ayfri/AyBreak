@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Breakout;
+namespace Breakout.Entities;
 
 public class Brick : PictureBox {
 	public const int BrickWidth = 50;

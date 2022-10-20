@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Breakout.Properties;
 
-namespace Breakout;
+namespace Breakout.Entities;
 
 public class Ball : PictureBox {
 	private static readonly Random Random = new();
@@ -32,7 +32,7 @@ public class Ball : PictureBox {
 	public void LaunchBallFromPaddle() {
 		Waiting = false;
 		const int delta = 15;
-		var angle = Random.Next(180 - delta, 360 - delta);
-		Velocity = new((float)Math.Cos(angle * Math.PI / 180), (float)Math.Sin(angle * Math.PI / 180));
+		var angle = Random.Next(180 + delta, 360 - delta);
+		Velocity = new((float)Math.Cos(angle * Math.PI / 180d), (float)Math.Sin(angle * Math.PI / 180d));
 	}
 }

@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Windows.Forms;
 
-namespace Breakout;
+namespace Breakout.Entities;
 
 public sealed class ScoreLabel : Label {
 	private const float Speed = .4f;
