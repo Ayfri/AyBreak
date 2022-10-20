@@ -48,7 +48,7 @@
 			// 
 			this.timer.Enabled = true;
 			this.timer.SynchronizingObject = this;
-			this.timer.Elapsed += new System.Timers.ElapsedEventHandler(this.timer_Elapsed);
+			this.timer.Elapsed += new System.Timers.ElapsedEventHandler(this.GameLoop);
 			// 
 			// ScoreLabel
 			// 

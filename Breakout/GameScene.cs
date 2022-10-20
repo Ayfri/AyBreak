@@ -26,34 +26,36 @@ public sealed class PauseMenu : Panel {
 			Font = new("Candara", 40),
 			ForeColor = Color.White,
 			Text = "Paused",
-			Width = 40 * 7,
+			Width = 40 * 7
 		};
+
 		var textMeasure = TextRenderer.MeasureText(label.Text, label.Font);
 		label.Location = new((Width - textMeasure.Width) / 2, 50);
 
 		var resumeButton = new PauseMenuButton(
 			"Resume",
-			(_, _) => {
-				(Parent as GameScene)?.HidePauseMenu();
-			}
+			(_, _) => { (Parent as GameScene)?.HidePauseMenu(); }
 		);
 
 		resumeButton.Location = new((Width - resumeButton.Width) / 2, (Height - resumeButton.Height) / 2);
-		
+
 		var restartButton = new PauseMenuButton(
 			"Restart",
 			(_, _) => {
 				var layout = (Parent as GameScene)?.BricksLayout;
+
 				if (layout == null) Program.MainForm.ChangeScene(new LevelSelectionScene());
 				else Program.MainForm.ChangeScene(new GameScene(layout));
 			}
 		);
+
 		restartButton.Location = new((Width - restartButton.Width) / 2, (Height - restartButton.Height) / 2 + 75);
 
 		var exitButton = new PauseMenuButton(
-			"Exit",
+			"Quit",
 			static (_, _) => Program.MainForm.ChangeScene(new MainMenuScene())
 		);
+
 		exitButton.Location = new((Width - exitButton.Width) / 2, (Height - exitButton.Height) / 2 + 150);
 
 
@@ -98,12 +100,12 @@ public partial class GameScene : AbstractScene {
 	};
 
 	private readonly List<Brick> _bricks;
-
-	public readonly string BricksLayout;
 	private readonly PauseMenu _pauseMenu = new();
 	private readonly List<ScoreLabel> _scoreLabels = new();
 
 	public readonly Ball Ball = new();
+
+	public readonly string BricksLayout;
 
 	private bool _accelerate;
 	private int _lives = 5;
@@ -151,7 +153,7 @@ public partial class GameScene : AbstractScene {
 	 * A Brick is a PictureBox with a Tag of "Brick".
 	 * The bricks are added to the Controls collection.
 	 */
-	public void GenerateBricks() {
+	private void GenerateBricks() {
 		var rows = BricksLayout.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 		var longestRow = rows.Max(row => row.Length);
 
@@ -184,13 +186,13 @@ public partial class GameScene : AbstractScene {
 		}
 	}
 
-	private void timer_Elapsed(object sender, ElapsedEventArgs e) {
+	private void GameLoop(object sender, ElapsedEventArgs e) {
 		var deltaTime = (int)(e.SignalTime - e.SignalTime.AddMilliseconds(-TimerInterval)).TotalMilliseconds;
 
 		debugLabel.Visible = debugLabel.Text.Length == 0;
 
 		if (_accelerate) Ball.Speed = 2;
-		else Ball.Speed = .65f;
+		else Ball.Speed = .9f;
 
 		ScoreLabel.Text = $"Score: {_score}";
 		LivesLabel.Text = $"Lives: {_lives}";
@@ -198,8 +200,12 @@ public partial class GameScene : AbstractScene {
 		MovePaddle(deltaTime);
 		MoveScoreLabels(deltaTime);
 
-		if (Ball.Waiting) Ball.Location = new(paddle.CenterX() - Ball.Width / 2, paddle.Top - Ball.Height);
-		else Ball.Move(deltaTime);
+		if (Ball.Waiting) {
+			Ball.Location = new(paddle.CenterX() - Ball.Width / 2, paddle.Top - Ball.Height);
+			return;
+		}
+
+		Ball.Move(deltaTime);
 
 		if (Ball.Left < 0 || Ball.Left > ClientSize.Width - Ball.Width) Ball.Velocity.X *= -1;
 
@@ -224,25 +230,29 @@ public partial class GameScene : AbstractScene {
 	}
 
 	private void BricksPhysics() {
-		var touchingBricks = _bricks.Where(brick => Ball.Bounds.IntersectsWith(brick.Bounds)).ToList();
-		if (touchingBricks.Count == 0) return;
-
-		// determine the side of the brick that the ball hit using the distance between the centers and the velocity
 		var ballRect = Ball.Bounds;
+		var nextBallRect = new Rectangle((int)(Ball.Left + Ball.Velocity.X), (int)(Ball.Top + Ball.Velocity.Y), Ball.Width, Ball.Height);
+		var touchingBricks = _bricks.Where(brick => brick.Bounds.IntersectsWith(nextBallRect)).ToList();
+		if (touchingBricks.Count == 0) return;
+		
+		// search the most touched brick
+		var mostTouchedBrick = touchingBricks.Select(
+			brick => new {
+				brick,
+				brickRectIntersect = Rectangle.Intersect(brick.Bounds, ballRect)
+			}
+		).OrderByDescending(static brick => brick.brickRectIntersect.Width * brick.brickRectIntersect.Height).FirstOrDefault();
 
-		// create a rectangle that is the size of all the bricks the ball is touching
-		var bricksRect = new Rectangle(
-			touchingBricks.Min(static b => b.Left),
-			touchingBricks.Min(static b => b.Top),
-			touchingBricks.Max(static b => b.Right) - touchingBricks.Min(static b => b.Left),
-			touchingBricks.Max(static b => b.Bottom) - touchingBricks.Min(static b => b.Top)
-		);
+		if (mostTouchedBrick?.brick == null) return;
+		var brick = mostTouchedBrick.brick!;
 
-		// determine the side (only up, down, left or right) of the brick that the ball hit, search the most touching side
-		var touchedSide = ballRect.GetTouchingSide(bricksRect);
+		var touchingSide =
+			mostTouchedBrick.brickRectIntersect.Width > mostTouchedBrick.brickRectIntersect.Height
+				? Ball.Top < brick.Top ? Side.Top : Side.Bottom
+				: Ball.Left < brick.Left ? Side.Left : Side.Right;
 
 		// determine the new velocity based on the side
-		switch (touchedSide) {
+		switch (touchingSide) {
 			case Side.Bottom or Side.Top:
 				Ball.Velocity.Y *= -1;
 				break;
@@ -250,28 +260,10 @@ public partial class GameScene : AbstractScene {
 			case Side.Left or Side.Right:
 				Ball.Velocity.X *= -1;
 				break;
-
-			case null:
-				return;
 		}
 
-		// find the brick that was the most inside the ball
-		var brick = touchingBricks.Aggregate(
-			(current, next) => {
-				var currentDistance = Math.Sqrt(
-					Math.Pow(ballRect.CenterX() - current.Bounds.CenterX(), 2) + Math.Pow(ballRect.CenterY() - current.Bounds.CenterY(), 2)
-				);
-
-				var nextDistance = Math.Sqrt(
-					Math.Pow(ballRect.CenterX() - next.Bounds.CenterX(), 2) + Math.Pow(ballRect.CenterY() - next.Bounds.CenterY(), 2)
-				);
-
-				return currentDistance < nextDistance ? current : next;
-			}
-		);
-
 		// hit the brick
-		brick?.Hit(this, touchedSide.Value);
+		mostTouchedBrick.brick.Hit(this, touchingSide);
 	}
 
 	private void MoveScoreLabels(int deltaTime) {
