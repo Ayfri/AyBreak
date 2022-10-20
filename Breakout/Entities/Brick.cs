@@ -1,15 +1,16 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace Breakout.Entities;
 
-public class Brick : PictureBox {
+public sealed class Brick : PictureBox {
 	public const int BrickWidth = 50;
 	public const int BrickHeight = 20;
 	public const int BrickMargin = 1;
+	private static readonly Random Random = new();
 	private readonly Label? _label;
-
 	public readonly BrickType Type;
 
 	private int _health;
@@ -43,19 +44,38 @@ public class Brick : PictureBox {
 		}
 	}
 
-	public void Hit(GameScene game, Side touchedSide) {
+	public void Hit(GameScene game, Ball ball, Side touchedSide) {
 		Health--;
 		if (Health > 0) return;
 		game.RemoveBrick(this);
 
-		var collisionPayload = new OnCollision {
+		var collisionPayload = new CollisionPayload {
 			Game = game,
 			Brick = this,
-			Ball = game.Ball,
+			Ball = ball,
 			Side = touchedSide,
 			BrickPosition = game.GetBrickPos(this)
 		};
 
 		Type.OnCollision?.Invoke(collisionPayload);
+
+		if (!(Random.NextDouble() > .9)) return;
+		
+		var powerUpCount = typeof(PowerUpType).GetEnumValues().Length;
+		var type = (PowerUpType)Random.Next(powerUpCount);
+
+		var value = type switch {
+			PowerUpType.BallNoClip => 1,
+			PowerUpType.BallSpeedUp => Random.NextDouble() * .1,
+			PowerUpType.IncreasePaddleSize => Random.Next(10, 50),
+			PowerUpType.MoreBall => 1,
+			PowerUpType.MoreLife => 1,
+			PowerUpType.ScoreMultiplier => Random.NextDouble() * 2,
+			_ => throw new ArgumentOutOfRangeException()
+		};
+
+		var powerUp = new PowerUp(type, value);
+		powerUp.Location = new(Location.X + Width / 2, Location.Y + Height);
+		game.AddPowerUp(powerUp);
 	}
 }

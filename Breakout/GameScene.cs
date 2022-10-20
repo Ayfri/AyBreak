@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Timers;
 using System.Windows.Forms;
 using Breakout.Entities;
+using Timer = System.Timers.Timer;
 
 namespace Breakout;
 
@@ -88,55 +88,90 @@ public partial class GameScene : AbstractScene {
 		{ " ", new() { Name = "Empty", Color = Color.Transparent } },
 		{ "-23", new() { Name = "Brick", Color = Color.Red, MaxHealthColor = Color.Orange, Score = 10, MaxHealth = 3 } }, {
 			"*", new() {
-				Name = "Explosion", Color = Color.Purple, Score = 30, OnCollision = static collision => {
-					var brickPos = collision.BrickPosition;
-					Debug.WriteLine($"Explosion at {brickPos}");
-					collision.Game.GetBrick(brickPos with { X = brickPos.X + 1 })?.Hit(collision.Game, Side.Left);
-					collision.Game.GetBrick(brickPos with { X = brickPos.X - 1 })?.Hit(collision.Game, Side.Right);
-					collision.Game.GetBrick(brickPos with { Y = brickPos.Y + 1 })?.Hit(collision.Game, Side.Top);
-					collision.Game.GetBrick(brickPos with { Y = brickPos.Y - 1 })?.Hit(collision.Game, Side.Bottom);
+				Name = "Explosion", Color = Color.Purple, Score = 30, OnCollision = static collisionPayload => {
+					var brickPos = collisionPayload.BrickPosition;
+					var game = collisionPayload.Game;
+					game.GetBrick(brickPos with { X = brickPos.X + 1 })?.Hit(game, collisionPayload.Ball, Side.Left);
+					game.GetBrick(brickPos with { X = brickPos.X - 1 })?.Hit(game, collisionPayload.Ball, Side.Right);
+					game.GetBrick(brickPos with { Y = brickPos.Y + 1 })?.Hit(game, collisionPayload.Ball, Side.Top);
+					game.GetBrick(brickPos with { Y = brickPos.Y - 1 })?.Hit(game, collisionPayload.Ball, Side.Bottom);
 				}
 			}
 		}
 	};
 
+	private readonly List<Ball> _balls = new();
 	private readonly List<Brick> _bricks;
-	private readonly PauseMenu _pauseMenu = new();
-	private readonly List<ScoreLabel> _scoreLabels = new();
 
-	public readonly Ball Ball = new();
+	private readonly PauseMenu _pauseMenu = new();
+	private readonly List<PowerUp> _powerUps = new();
+	private readonly List<ScoreLabel> _scoreLabels = new();
 
 	public readonly string BricksLayout;
 
 	private bool _accelerate;
-	private int _lives = 5;
+	private bool _noClip;
 	private int _score;
+	public double BallSpeedMultiplier = 1;
+	public int Lives = 5;
+
+	private readonly Timer _noClipTimer = new() {
+		Interval = 5000
+	};
+
+	public double ScoreMultiplier = 1;
 
 	public GameScene(string bricksLayout) {
 		BricksLayout = bricksLayout;
 		InitializeComponent();
-		Controls.Add(Ball);
-		Ball.Reset();
+		// Ball.Reset();
+		// Controls.Add(Ball);
+		AddBall();
+
+		/*
+		for (var i = 0; i < 10; i++) {
+			AddBall();
+		}*/
+
 		_pauseMenu.Location = new(ClientSize.Width / 2 - _pauseMenu.Width / 2, ClientSize.Height / 2 - _pauseMenu.Height / 2);
 
-		paddle.Left = ClientSize.Width / 2 - paddle.Width / 2;
-		paddle.Top = (int)(ClientSize.Height * .9) - paddle.Height;
+		Paddle.Left = ClientSize.Width / 2 - Paddle.Width / 2;
+		Paddle.Top = (int)(ClientSize.Height * .9) - Paddle.Height;
 
-		timer.Interval = TimerInterval;
+		physicsTimer.Interval = TimerInterval;
 		_bricks = new(Regex.Replace(BricksLayout, @"\s+", "").Length);
 		GenerateBricks();
+
+		_noClipTimer.Elapsed += (_, _) => {
+			_noClip = false;
+			_noClipTimer.Stop();
+		};
 	}
 
 	public int PaddleSpeed { get; set; } = 1;
 	private bool LeftPressed { get; set; }
 	private bool RightPressed { get; set; }
 
+	public void AddBall() {
+		var ball = new Ball();
+		ball.Reset();
+		_balls.Add(ball);
+		Controls.Add(ball);
+	}
+
+	public void AddPowerUp(PowerUp powerUp) {
+		_powerUps.Add(powerUp);
+		Controls.Add(powerUp);
+		powerUp.BringToFront();
+	}
+
 	public void RemoveBrick(Brick brick) {
 		_bricks.Remove(brick);
 		Controls.Remove(brick);
-		_score += brick.Type.Score;
+		_score += (int)(brick.Type.Score * ScoreMultiplier);
 
-		var scoreLabel = new ScoreLabel(brick.Location, brick.Top - 80, brick.Type.Score);
+		if (_scoreLabels.Count > 10) return;
+		var scoreLabel = new ScoreLabel(brick.Location, brick.Top - 80, (int)(brick.Type.Score * ScoreMultiplier));
 		_scoreLabels.Add(scoreLabel);
 		Controls.Add(scoreLabel);
 		Controls.SetChildIndex(scoreLabel, 0);
@@ -189,82 +224,46 @@ public partial class GameScene : AbstractScene {
 
 	private void GameLoop(object sender, ElapsedEventArgs e) {
 		var deltaTime = (int)(e.SignalTime - e.SignalTime.AddMilliseconds(-TimerInterval)).TotalMilliseconds;
-
-		debugLabel.Visible = debugLabel.Text.Length > 0;
-
-		if (_accelerate) Ball.Speed = 2;
-		else Ball.Speed = .9f;
-
-		ScoreLabel.Text = $"Score: {_score}";
-		LivesLabel.Text = $"Lives: {_lives}";
-
 		MovePaddle(deltaTime);
-		MoveScoreLabels(deltaTime);
 
-		if (Ball.Waiting) {
-			Ball.Location = new(paddle.CenterX() - Ball.Width / 2, paddle.Top - Ball.Height);
-			return;
+		foreach (var ball in _balls) {
+			if (ball.Waiting) {
+				ball.Location = new(Paddle.CenterX() - ball.Width / 2, Paddle.Top - ball.Height);
+				continue;
+			}
+
+			if (_accelerate) ball.Speed = 2 * BallSpeedMultiplier;
+			else ball.Speed = .9f * BallSpeedMultiplier;
+
+			ball.Move(deltaTime);
+
+			if (ball.Left < 0 || ball.Left > ClientSize.Width - ball.Width) ball.Velocity.X *= -1;
+
+			if (ball.Top < 0) {
+				ball.Velocity.Y *= -1;
+			} else if (ball.Top > ClientSize.Height - ball.Height) {
+				ball.Reset();
+				Lives--;
+				Invalidate();
+				continue;
+			}
+
+			BricksPhysics(ball);
+
+			if (!ball.Bounds.IntersectsWith(Paddle.Bounds)) continue;
+			PaddlePhysic(ball);
 		}
+	}
 
-		Ball.Move(deltaTime);
-
-		if (Ball.Left < 0 || Ball.Left > ClientSize.Width - Ball.Width) Ball.Velocity.X *= -1;
-
-		if (Ball.Top < 0) {
-			Ball.Velocity.Y *= -1;
-		} else if (Ball.Top > ClientSize.Height - Ball.Height) {
-			Ball.Reset();
-			_lives--;
-			Invalidate();
-			return;
-		}
-
-		BricksPhysics();
-
-		if (!Ball.Bounds.IntersectsWith(paddle.Bounds)) return;
-		PaddlePhysic();
+	public void NoClip() {
+		_noClip = true;
+		if (_noClipTimer.Enabled) _noClipTimer.Stop();
+		_noClipTimer.Start();
 	}
 
 	private void MovePaddle(int deltaTime) {
-		if (LeftPressed && paddle.Left > 0) paddle.Left -= PaddleSpeed * deltaTime;
-		if (RightPressed && paddle.Bounds.Right < ClientSize.Width) paddle.Left += PaddleSpeed * deltaTime;
-	}
-
-	private void BricksPhysics() {
-		var ballRect = Ball.Bounds;
-		var nextBallRect = new Rectangle((int)(Ball.Left + Ball.Velocity.X), (int)(Ball.Top + Ball.Velocity.Y), Ball.Width, Ball.Height);
-		var touchingBricks = _bricks.Where(brick => brick.Bounds.IntersectsWith(nextBallRect)).ToList();
-		if (touchingBricks.Count == 0) return;
-		
-		// search the most touched brick
-		var mostTouchedBrick = touchingBricks.Select(
-			brick => new {
-				brick,
-				brickRectIntersect = Rectangle.Intersect(brick.Bounds, ballRect)
-			}
-		).OrderByDescending(static brick => brick.brickRectIntersect.Width * brick.brickRectIntersect.Height).FirstOrDefault();
-
-		if (mostTouchedBrick?.brick == null) return;
-		var brick = mostTouchedBrick.brick!;
-
-		var touchingSide =
-			mostTouchedBrick.brickRectIntersect.Width > mostTouchedBrick.brickRectIntersect.Height
-				? Ball.Top < brick.Top ? Side.Top : Side.Bottom
-				: Ball.Left < brick.Left ? Side.Left : Side.Right;
-
-		// determine the new velocity based on the side
-		switch (touchingSide) {
-			case Side.Bottom or Side.Top:
-				Ball.Velocity.Y *= -1;
-				break;
-
-			case Side.Left or Side.Right:
-				Ball.Velocity.X *= -1;
-				break;
-		}
-
-		// hit the brick
-		mostTouchedBrick.brick.Hit(this, touchingSide);
+		if (LeftPressed && Paddle.Left > 0) Paddle.Left -= PaddleSpeed * deltaTime;
+		if (RightPressed && Paddle.Bounds.Right < ClientSize.Width) Paddle.Left += PaddleSpeed * deltaTime;
 	}
 
 	private void MoveScoreLabels(int deltaTime) {
@@ -279,9 +278,71 @@ public partial class GameScene : AbstractScene {
 		}
 	}
 
-	private void PaddlePhysic() {
-		var bounceAngle = Math.Atan2(-Ball.Velocity.Y, Ball.Velocity.X);
-		var paddleAngle = (Ball.CenterX() - paddle.CenterX()) * 90 / (paddle.Width / 2d) - 90;
+	private void MovePowerUps(int deltaTime) {
+		for (var i = 0; i < _powerUps.Count; i++) {
+			var powerUp = _powerUps[i];
+			if (!powerUp.Move(deltaTime)) continue;
+
+			_powerUps.Remove(powerUp);
+			Controls.Remove(powerUp);
+		}
+	}
+
+	private void BricksPhysics(Ball ball) {
+		var ballRect = ball.Bounds;
+		var nextBallRect = new Rectangle((int)(ball.Left + ball.Velocity.X), (int)(ball.Top + ball.Velocity.Y), ball.Width, ball.Height);
+		var touchingBricks = _bricks.Where(brick => brick.Bounds.IntersectsWith(nextBallRect)).ToList();
+		if (touchingBricks.Count == 0) return;
+
+		// search the most touched brick
+		var mostTouchedBrick = touchingBricks.Select(
+			brick => new {
+				brick,
+				brickRectIntersect = Rectangle.Intersect(brick.Bounds, ballRect)
+			}
+		).OrderByDescending(static brick => brick.brickRectIntersect.Width * brick.brickRectIntersect.Height).FirstOrDefault();
+
+		if (mostTouchedBrick?.brick == null) return;
+		var brick = mostTouchedBrick.brick!;
+
+		var touchingSide =
+			mostTouchedBrick.brickRectIntersect.Width > mostTouchedBrick.brickRectIntersect.Height
+				? ball.Top < brick.Top ? Side.Top : Side.Bottom
+				: ball.Left < brick.Left ? Side.Left : Side.Right;
+
+		if (!_noClip) {
+			// determine the new velocity based on the side
+			switch (touchingSide) {
+				case Side.Bottom or Side.Top:
+					ball.Velocity.Y *= -1;
+					break;
+
+				case Side.Left or Side.Right:
+					ball.Velocity.X *= -1;
+					break;
+			}
+		}
+
+		// hit the brick
+		mostTouchedBrick.brick.Hit(this, ball, touchingSide);
+	}
+
+	private void PowerUpPhysics() {
+		for (var i = 0; i < _powerUps.Count; i++) {
+			var powerUp = _powerUps[i];
+			if (!powerUp.Bounds.IntersectsWith(Paddle.Bounds)) return;
+
+			var collisionPayload = new CollisionPayload { Game = this };
+
+			powerUp.Apply(collisionPayload);
+			_powerUps.Remove(powerUp);
+			Controls.Remove(powerUp);
+		}
+	}
+
+	private void PaddlePhysic(Ball ball) {
+		var bounceAngle = Math.Atan2(-ball.Velocity.Y, ball.Velocity.X);
+		var paddleAngle = (ball.CenterX() - Paddle.CenterX()) * 90 / (Paddle.Width / 2d) - 90;
 		var finalAngle = bounceAngle * .1 + paddleAngle * .9;
 
 		const int delta = 15;
@@ -289,15 +350,22 @@ public partial class GameScene : AbstractScene {
 		const int maxAngle = 0 - delta;
 		finalAngle = Math.Max(minAngle, Math.Min(maxAngle, finalAngle));
 
-		Ball.Velocity = new((float)Math.Cos(finalAngle * Math.PI / 180d), (float)Math.Sin(finalAngle * Math.PI / 180d));
+		ball.Velocity = new((float)Math.Cos(finalAngle * Math.PI / 180d), (float)Math.Sin(finalAngle * Math.PI / 180d));
 	}
 
 	public override void KeyDown(KeyEventArgs e) {
 		if (e.KeyCode == Keys.Left) LeftPressed = true;
 		if (e.KeyCode == Keys.Right) RightPressed = true;
 		if (e.KeyCode == Keys.B) _accelerate = true;
-		if (e.KeyCode == Keys.Space && Ball.Waiting) Ball.LaunchBallFromPaddle();
-		if (e.KeyCode == Keys.R) Ball.Reset();
+
+		if (e.KeyCode == Keys.Space) {
+			foreach (var ball in _balls.Where(static ball => ball.Waiting)) ball.LaunchBallFromPaddle();
+		}
+
+		if (e.KeyCode == Keys.R)
+			foreach (var ball in _balls) {
+				ball.Reset();
+			}
 
 		if (e.KeyCode == Keys.Escape) {
 			if (Controls.Contains(_pauseMenu)) HidePauseMenu();
@@ -314,11 +382,24 @@ public partial class GameScene : AbstractScene {
 	private void ShowPauseMenu() {
 		Controls.Add(_pauseMenu);
 		_pauseMenu.BringToFront();
-		timer.Stop();
+		physicsTimer.Stop();
 	}
 
 	public void HidePauseMenu() {
 		Controls.Remove(_pauseMenu);
-		timer.Start();
+		physicsTimer.Start();
+	}
+
+	private void MovingObjectsLoop(object sender, ElapsedEventArgs e) {
+		var deltaTime = (int)(e.SignalTime - e.SignalTime.AddMilliseconds(-TimerInterval)).TotalMilliseconds;
+
+		MovePowerUps(deltaTime);
+		MoveScoreLabels(deltaTime);
+		PowerUpPhysics();
+		
+		debugLabel.Visible = debugLabel.Text.Length > 0;
+
+		ScoreLabel.Text = $"Score: {_score}";
+		LivesLabel.Text = $"Lives: {Lives}";
 	}
 }

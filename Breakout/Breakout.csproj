@@ -48,9 +48,10 @@
         <Reference Include="System.Xml"/>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="BrickType.cs"/>
         <Compile Include="Entities\Ball.cs"/>
         <Compile Include="Entities\Brick.cs"/>
+        <Compile Include="Entities\BrickType.cs"/>
+        <Compile Include="Entities\PowerUp.cs"/>
         <Compile Include="Entities\ScoreLabel.cs"/>
         <Compile Include="Extensions.cs"/>
         <Compile Include="GameScene.cs">

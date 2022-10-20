@@ -25,30 +25,32 @@
 		/// the contents of this method with the code editor.
 		/// </summary>
 		private void InitializeComponent() {
-			this.paddle = new System.Windows.Forms.PictureBox();
-			this.timer = new System.Timers.Timer();
+			this.Paddle = new System.Windows.Forms.PictureBox();
+			this.physicsTimer = new System.Timers.Timer();
 			this.ScoreLabel = new System.Windows.Forms.Label();
 			this.debugLabel = new System.Windows.Forms.Label();
 			this.LivesLabel = new System.Windows.Forms.Label();
-			((System.ComponentModel.ISupportInitialize)(this.paddle)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.timer)).BeginInit();
+			this.movingObjectsTimer = new System.Timers.Timer();
+			((System.ComponentModel.ISupportInitialize)(this.Paddle)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.physicsTimer)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.movingObjectsTimer)).BeginInit();
 			this.SuspendLayout();
 			// 
-			// paddle
+			// Paddle
 			// 
-			this.paddle.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-			this.paddle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-			this.paddle.Location = new System.Drawing.Point(430, 896);
-			this.paddle.Name = "paddle";
-			this.paddle.Size = new System.Drawing.Size(110, 20);
-			this.paddle.TabIndex = 0;
-			this.paddle.TabStop = false;
+			this.Paddle.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+			this.Paddle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+			this.Paddle.Location = new System.Drawing.Point(430, 896);
+			this.Paddle.Name = "Paddle";
+			this.Paddle.Size = new System.Drawing.Size(110, 20);
+			this.Paddle.TabIndex = 0;
+			this.Paddle.TabStop = false;
 			// 
-			// timer
+			// physicsTimer
 			// 
-			this.timer.Enabled = true;
-			this.timer.SynchronizingObject = this;
-			this.timer.Elapsed += new System.Timers.ElapsedEventHandler(this.GameLoop);
+			this.physicsTimer.Enabled = true;
+			this.physicsTimer.SynchronizingObject = this;
+			this.physicsTimer.Elapsed += new System.Timers.ElapsedEventHandler(this.GameLoop);
 			// 
 			// ScoreLabel
 			// 
@@ -84,6 +86,13 @@
 			this.LivesLabel.TabIndex = 4;
 			this.LivesLabel.Text = "Lives";
 			// 
+			// movingObjectsTimer
+			// 
+			this.movingObjectsTimer.Enabled = true;
+			this.movingObjectsTimer.Interval = 33D;
+			this.movingObjectsTimer.SynchronizingObject = this;
+			this.movingObjectsTimer.Elapsed += new System.Timers.ElapsedEventHandler(this.MovingObjectsLoop);
+			// 
 			// GameScene
 			// 
 			this.AccessibleDescription = "A game";
@@ -93,18 +102,21 @@
 			this.Controls.Add(this.LivesLabel);
 			this.Controls.Add(this.debugLabel);
 			this.Controls.Add(this.ScoreLabel);
-			this.Controls.Add(this.paddle);
+			this.Controls.Add(this.Paddle);
 			this.Font = new System.Drawing.Font("JetBrains Mono", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.ForeColor = System.Drawing.Color.Transparent;
 			this.Margin = new System.Windows.Forms.Padding(4);
 			this.RightToLeft = System.Windows.Forms.RightToLeft.No;
 			this.Size = new System.Drawing.Size(1920, 1061);
 			this.Text = "Breakout";
-			((System.ComponentModel.ISupportInitialize)(this.paddle)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.timer)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.Paddle)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.physicsTimer)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.movingObjectsTimer)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+
+		private System.Timers.Timer movingObjectsTimer;
 
 		private System.Windows.Forms.Label LivesLabel;
 
@@ -112,9 +124,9 @@
 
 		private System.Windows.Forms.Label ScoreLabel;
 
-		private System.Timers.Timer timer;
+		private System.Timers.Timer physicsTimer;
 
-		private System.Windows.Forms.PictureBox paddle;
+		public System.Windows.Forms.PictureBox Paddle;
 
 		#endregion
 	}

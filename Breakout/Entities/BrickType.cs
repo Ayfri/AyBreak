@@ -4,7 +4,7 @@ using Breakout.Entities;
 
 namespace Breakout;
 
-public class OnCollision {
+public class CollisionPayload {
 	public Ball Ball;
 	public Brick Brick;
 	public Point BrickPosition;
@@ -13,7 +13,7 @@ public class OnCollision {
 }
 
 public class BrickType {
-	public Action<OnCollision>? OnCollision;
+	public Action<CollisionPayload>? OnCollision;
 	public BrickType() => MaxHealthColor = Color;
 	public string Name { get; set; } = "";
 	public Color Color { get; set; }

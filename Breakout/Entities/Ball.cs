@@ -17,7 +17,7 @@ public class Ball : PictureBox {
 
 	public bool Waiting { get; private set; }
 
-	public float Speed { get; set; }
+	public double Speed { get; set; }
 
 	public new void Move(int deltaTime) {
 		Left += (int)Math.Round(Velocity.X * Speed * deltaTime);
