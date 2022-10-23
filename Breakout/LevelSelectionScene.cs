@@ -39,8 +39,8 @@ public sealed class LevelSelectionScene : AbstractScene {
 		public const int BtnHeight = 120;
 		public const int BtnMargin = 20;
 
-		public LevelButton(int level) {
-			Text = $"Level {level + 1}";
+		public LevelButton(int levelNumber) {
+			Text = $"Level {levelNumber + 1}";
 			Width = BtnWidth;
 			Height = BtnHeight;
 			Font = new("Candara", 30);
@@ -48,8 +48,8 @@ public sealed class LevelSelectionScene : AbstractScene {
 			ForeColor = Color.White;
 
 			Click += (_, _) => {
-				var layout = LevelManager.LoadLevel(level);
-				Program.MainForm.ChangeScene(new GameScene(layout));
+				var level = LevelManager.LoadLevel(levelNumber);
+				Program.MainForm.ChangeScene(new GameScene(level));
 			};
 		}
 	}

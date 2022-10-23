@@ -7,7 +7,7 @@ using Breakout.Properties;
 
 public sealed class Ball : PictureBox {
 	private static readonly Random Random = new();
-	public PointF Velocity = new();
+	public PointF Velocity;
 
 	public Ball() {
 		Image = Resources.ball;

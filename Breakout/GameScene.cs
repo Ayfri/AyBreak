@@ -43,10 +43,10 @@ public sealed class PauseMenu : Panel {
 		var restartButton = new PauseMenuButton(
 			"Restart",
 			(_, _) => {
-				var layout = (Parent as GameScene)?.BricksLayout;
+				var level = (Parent as GameScene)?.Level;
 
-				if (layout == null) Program.MainForm.ChangeScene(new LevelSelectionScene());
-				else Program.MainForm.ChangeScene(new GameScene(layout));
+				if (level == null) Program.MainForm.ChangeScene(new LevelSelectionScene());
+				else Program.MainForm.ChangeScene(new GameScene(level.Value));
 			}
 		);
 
@@ -81,7 +81,7 @@ public sealed class PauseMenu : Panel {
 	}
 }
 
-public partial class GameScene : AbstractScene {
+public sealed partial class GameScene : AbstractScene {
 	private const int TimerInterval = 1000 / 60;
 
 	private const int PaddleSpeed = 1;
@@ -152,17 +152,17 @@ public partial class GameScene : AbstractScene {
 	private readonly List<PowerUp> _powerUps = new();
 	private readonly List<ScoreLabel> _scoreLabels = new();
 
-	public readonly string BricksLayout;
+	public readonly Level Level;
 
 	private bool _accelerate;
 	private int _score;
+
 	public double BallSpeedMultiplier = 1;
 	public int Lives = 5;
-
 	public double ScoreMultiplier = 1;
 
-	public GameScene(string bricksLayout) {
-		BricksLayout = bricksLayout;
+	public GameScene(Level level) {
+		Level = level;
 		InitializeComponent();
 		AddBall();
 
@@ -176,7 +176,7 @@ public partial class GameScene : AbstractScene {
 		Paddle.Top = (int) (ClientSize.Height * .9) - Paddle.Height;
 
 		physicsTimer.Interval = TimerInterval;
-		_bricks = new(Regex.Replace(BricksLayout, @"\s+", "").Length);
+		_bricks = new(Regex.Replace(Level.Layout, @"\s+", "").Length);
 		GenerateBricks();
 
 		_noClipTimer.Elapsed += (_, _) => {
@@ -230,7 +230,7 @@ public partial class GameScene : AbstractScene {
 	 * The bricks are added to the Controls collection.
 	 */
 	private void GenerateBricks() {
-		var rows = BricksLayout.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+		var rows = Level.Layout.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 		var longestRow = rows.Max(static row => row.Length);
 
 		for (var rowIndex = 0; rowIndex < rows.Length; rowIndex++) {
@@ -243,16 +243,18 @@ public partial class GameScene : AbstractScene {
 
 				// search if character is included in a brick key
 				foreach (var brick in
-					from brickEntry in BricksTypes
-					let character = row[colIndex].ToString()
-					where brickEntry.Key.Contains(character)
-					where !brickEntry.Value.IsEmpty
-					let brickIndex = brickEntry.Key.IndexOf(character, StringComparison.Ordinal)
-					select new Brick(brickEntry.Value) {
-						Left = startX + (Brick.BrickWidth + Brick.BrickMargin) * colIndex,
-						Top = startY + (Brick.BrickHeight + Brick.BrickMargin) * rowIndex,
-						Health = brickEntry.Value.MaxHealth / brickEntry.Key.Length * (brickIndex + 1)
-					}
+					(
+						from brickEntry in BricksTypes
+						let character = row[colIndex].ToString()
+						where brickEntry.Key.Contains(character)
+						where !brickEntry.Value.IsEmpty
+						let brickIndex = brickEntry.Key.IndexOf(character, StringComparison.Ordinal)
+						select new Brick(brickEntry.Value) {
+							Left = startX + (Brick.BrickWidth + Brick.BrickMargin) * colIndex,
+							Top = startY + (Brick.BrickHeight + Brick.BrickMargin) * rowIndex,
+							Health = brickEntry.Value.MaxHealth / brickEntry.Key.Length * (brickIndex + 1)
+						}
+					).Where(static brick => brick != null)
 				) {
 					Controls.Add(brick);
 					Controls.SetChildIndex(brick, 1);
@@ -266,6 +268,8 @@ public partial class GameScene : AbstractScene {
 	private void GameLoop(object _, ElapsedEventArgs e) {
 		var deltaTime = (int) (e.SignalTime - e.SignalTime.AddMilliseconds(-TimerInterval)).TotalMilliseconds;
 		MovePaddle(deltaTime);
+
+		if (_bricks.Count == 0) Win();
 
 		foreach (var ball in _balls) {
 			if (ball.Waiting) {
@@ -294,6 +298,37 @@ public partial class GameScene : AbstractScene {
 			if (!ball.Bounds.IntersectsWith(Paddle.Bounds)) continue;
 			PaddlePhysic(ball);
 		}
+	}
+
+	private void Win() {
+		physicsTimer.Close();
+		movingObjectsTimer.Close();
+
+		var winLabel = new Label {
+			Text = "You win!",
+			Font = new("Candara", 60),
+			ForeColor = Color.White,
+			AutoSize = true
+		};
+
+		winLabel.Location = new(ClientSize.Width / 2 - 180, ClientSize.Height / 2 - 100);
+
+		Controls.Add(winLabel);
+		Controls.SetChildIndex(winLabel, 0);
+
+		// wait 3 seconds before closing the game
+		var timer = new Timer(4 * 1000) { Enabled = true };
+
+		timer.Elapsed += (_, _) => {
+			AbstractScene scene = new LevelSelectionScene();
+
+			if (Level.Number < LevelManager.Levels.Length) {
+				var level = LevelManager.LoadLevel(Level.Number + 1);
+				scene = new GameScene(level);
+			}
+			
+			Program.MainForm.ChangeScene(scene);
+		};
 	}
 
 	public void NoClip() {

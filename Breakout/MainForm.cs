@@ -16,12 +16,16 @@ public partial class MainForm : Form {
 	}
 
 	public void ChangeScene(AbstractScene newScene) {
-		_scene.Dispose();
-		_scene = newScene;
-		Controls.Add(_scene);
-		_scene.Location = new();
-		_scene.Dock = DockStyle.Fill;
-		_scene.Size = Size;
+		if (_scene.InvokeRequired) {
+			_scene.Invoke(new MethodInvoker(() => ChangeScene(newScene)));
+		} else {
+			_scene.Dispose();
+			_scene = newScene;
+			Controls.Add(_scene);
+			_scene.Location = new(0, 0);
+			_scene.Dock = DockStyle.Fill;
+			_scene.Size = Size;
+		}
 	}
 
 	private void MainForm_KeyDown(object sender, KeyEventArgs e) {
