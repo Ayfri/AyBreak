@@ -17,129 +17,9 @@ public enum Side {
 	Bottom
 }
 
-public sealed class PauseMenu : Panel {
-	public PauseMenu() {
-		BackColor = Color.FromArgb(100, 40, 40, 40);
-		Size = new(600, 450);
-
-		var label = new Label {
-			AutoSize = true,
-			Font = new("Candara", 40),
-			ForeColor = Color.White,
-			Text = "Paused",
-			Width = 40 * 7
-		};
-
-		var textMeasure = TextRenderer.MeasureText(label.Text, label.Font);
-		label.Location = new((Width - textMeasure.Width) / 2, 50);
-
-		var resumeButton = new PauseMenuButton(
-			"Resume",
-			(_, _) => { (Parent as GameScene)?.HidePauseMenu(); }
-		);
-
-		resumeButton.Location = new((Width - resumeButton.Width) / 2, (Height - resumeButton.Height) / 2);
-
-		var restartButton = new PauseMenuButton(
-			"Restart",
-			(_, _) => {
-				var level = (Parent as GameScene)?.Level;
-
-				if (level == null) Program.MainForm.ChangeScene(new LevelSelectionScene());
-				else Program.MainForm.ChangeScene(new GameScene(level.Value));
-			}
-		);
-
-		restartButton.Location = new((Width - restartButton.Width) / 2, (Height - restartButton.Height) / 2 + 75);
-
-		var exitButton = new PauseMenuButton(
-			"Quit",
-			static (_, _) => Program.MainForm.ChangeScene(new MainMenuScene())
-		);
-
-		exitButton.Location = new((Width - exitButton.Width) / 2, (Height - exitButton.Height) / 2 + 150);
-
-
-		Controls.Add(label);
-		Controls.Add(resumeButton);
-		Controls.Add(restartButton);
-		Controls.Add(exitButton);
-	}
-
-	private sealed class PauseMenuButton : Button {
-		public PauseMenuButton(string text, EventHandler clickHandler) {
-			Text = text;
-			Click += clickHandler;
-			Width = 200;
-			Height = 50;
-			BackColor = Color.FromArgb(30, 30, 30);
-			ForeColor = Color.White;
-			FlatStyle = FlatStyle.Flat;
-			FlatAppearance.BorderSize = 0;
-			Font = new("Candara", 20);
-		}
-	}
-}
-
 public sealed partial class GameScene : AbstractScene {
 	private const int TimerInterval = 1000 / 60;
-
 	private const int PaddleSpeed = 1;
-
-	private static readonly Dictionary<string, BrickType> BricksTypes = new() {
-		{
-			" ", new() {
-				Name = "Empty",
-				Color = Color.Transparent
-			}
-		}, {
-			"-23", new() {
-				Name = "Brick",
-				Color = Color.Red,
-				MaxHealthColor = Color.Orange,
-				Score = 10,
-				MaxHealth = 3
-			}
-		}, {
-			"*", new() {
-				Name = "Explosion",
-				Color = Color.Purple,
-				Score = 30,
-				OnCollision = static collisionPayload => {
-					var brickPos = collisionPayload.BrickPosition;
-					var game = collisionPayload.Game;
-
-					game.GetBrick(
-							brickPos with {
-								X = brickPos.X + 1
-							}
-						)
-						?.Hit(game, collisionPayload.Ball, Side.Left);
-
-					game.GetBrick(
-							brickPos with {
-								X = brickPos.X - 1
-							}
-						)
-						?.Hit(game, collisionPayload.Ball, Side.Right);
-
-					game.GetBrick(
-							brickPos with {
-								Y = brickPos.Y + 1
-							}
-						)
-						?.Hit(game, collisionPayload.Ball, Side.Top);
-
-					game.GetBrick(
-							brickPos with {
-								Y = brickPos.Y - 1
-							}
-						)
-						?.Hit(game, collisionPayload.Ball, Side.Bottom);
-				}
-			}
-		}
-	};
 
 	private readonly List<Ball> _balls = new();
 	private readonly List<Brick> _bricks;
@@ -223,7 +103,6 @@ public sealed partial class GameScene : AbstractScene {
 
 	public Point GetBrickPos(Brick brick) => new(brick.Left / Brick.BrickWidth, brick.Top / Brick.BrickHeight);
 
-
 	/**
 	 * Creates bricks from the BricksLayout string.
 	 * A Brick is a PictureBox with a Tag of "Brick".
@@ -244,7 +123,7 @@ public sealed partial class GameScene : AbstractScene {
 				// search if character is included in a brick key
 				foreach (var brick in
 					(
-						from brickEntry in BricksTypes
+						from brickEntry in BrickType.BricksTypes
 						let character = row[colIndex].ToString()
 						where brickEntry.Key.Contains(character)
 						where !brickEntry.Value.IsEmpty
@@ -306,7 +185,7 @@ public sealed partial class GameScene : AbstractScene {
 
 		var winLabel = new Label {
 			Text = "You win!",
-			Font = new("Candara", 60),
+			Font = new(Program.MainFont, 60),
 			ForeColor = Color.White,
 			AutoSize = true
 		};
@@ -316,8 +195,9 @@ public sealed partial class GameScene : AbstractScene {
 		Controls.Add(winLabel);
 		Controls.SetChildIndex(winLabel, 0);
 
-		// wait 3 seconds before closing the game
-		var timer = new Timer(4 * 1000) { Enabled = true };
+		var timer = new Timer(4 * 1000) {
+			Enabled = true
+		};
 
 		timer.Elapsed += (_, _) => {
 			AbstractScene scene = new LevelSelectionScene();
@@ -326,7 +206,7 @@ public sealed partial class GameScene : AbstractScene {
 				var level = LevelManager.LoadLevel(Level.Number + 1);
 				scene = new GameScene(level);
 			}
-			
+
 			Program.MainForm.ChangeScene(scene);
 		};
 	}

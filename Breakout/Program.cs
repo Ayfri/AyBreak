@@ -4,6 +4,7 @@ using System;
 using System.Windows.Forms;
 
 internal static class Program {
+	public const string MainFont = "Candara";
 	public static MainForm MainForm = null!;
 
 	[STAThread]

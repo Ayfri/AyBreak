@@ -1,6 +1,7 @@
 ﻿namespace Breakout;
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using Breakout.Entities;
 
@@ -13,6 +14,61 @@ public sealed class CollisionPayload {
 }
 
 public sealed class BrickType {
+	public static readonly Dictionary<string, BrickType> BricksTypes = new() {
+		{
+			" ", new() {
+				Name = "Empty",
+				Color = Color.Transparent
+			}
+		}, {
+			"-23", new() {
+				Name = "Brick",
+				Color = Color.Red,
+				MaxHealthColor = Color.Orange,
+				Score = 10,
+				MaxHealth = 3
+			}
+		}, {
+			"*", new() {
+				Name = "Explosion",
+				Color = Color.Purple,
+				Score = 30,
+				OnCollision = static collisionPayload => {
+					var brickPos = collisionPayload.BrickPosition;
+					var game = collisionPayload.Game;
+
+					game.GetBrick(
+							brickPos with {
+								X = brickPos.X + 1
+							}
+						)
+						?.Hit(game, collisionPayload.Ball, Side.Left);
+
+					game.GetBrick(
+							brickPos with {
+								X = brickPos.X - 1
+							}
+						)
+						?.Hit(game, collisionPayload.Ball, Side.Right);
+
+					game.GetBrick(
+							brickPos with {
+								Y = brickPos.Y + 1
+							}
+						)
+						?.Hit(game, collisionPayload.Ball, Side.Top);
+
+					game.GetBrick(
+							brickPos with {
+								Y = brickPos.Y - 1
+							}
+						)
+						?.Hit(game, collisionPayload.Ball, Side.Bottom);
+				}
+			}
+		}
+	};
+
 	public Action<CollisionPayload>? OnCollision;
 	public BrickType() => MaxHealthColor = Color;
 	public string Name { get; set; } = "";

@@ -14,7 +14,7 @@ public sealed class LevelSelectionScene : AbstractScene {
 			Text = "Select a level",
 			Width = 350,
 			Height = 100,
-			Font = new("Candara", 40),
+			Font = new(Program.MainFont, 40),
 			ForeColor = Color.White
 		};
 
@@ -43,7 +43,7 @@ public sealed class LevelSelectionScene : AbstractScene {
 			Text = $"Level {levelNumber + 1}";
 			Width = BtnWidth;
 			Height = BtnHeight;
-			Font = new("Candara", 30);
+			Font = new(Program.MainFont, 30);
 			BackColor = Color.FromArgb(20, 20, 25);
 			ForeColor = Color.White;
 

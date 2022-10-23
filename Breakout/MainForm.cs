@@ -3,7 +3,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-public partial class MainForm : Form {
+public sealed partial class MainForm : Form {
 	public static Size GameSize = new(1920, 1080);
 	private AbstractScene _scene = new MainMenuScene();
 

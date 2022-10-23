@@ -4,11 +4,11 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-public class MainMenuScene : AbstractScene {
+public sealed class MainMenuScene : AbstractScene {
 	private readonly Label _creditsLabel = new() {
 		AutoSize = true,
 		Text = "Ayfri",
-		Font = new("Candara", 30),
+		Font = new(Program.MainFont, 30),
 		ForeColor = Color.White,
 		Location = new((int) (MainForm.GameSize.Width * .9), (int) (MainForm.GameSize.Height * .9))
 	};
@@ -27,7 +27,7 @@ public class MainMenuScene : AbstractScene {
 
 	private readonly Label _titleLabel = new() {
 		Text = "Breakout",
-		Font = new("Candara", 80),
+		Font = new(Program.MainFont, 80),
 		Width = 480,
 		Height = 120,
 		ForeColor = Color.White,
@@ -40,7 +40,7 @@ public class MainMenuScene : AbstractScene {
 		Controls.AddRange(new Control[] { _startButton, _exitButton, _titleLabel, _creditsLabel });
 	}
 
-	private class MenuButton : Button {
+	private sealed class MenuButton : Button {
 		public MenuButton(string text, int offsetY, EventHandler onClick) {
 			Text = text;
 			Size = new(200, 80);
