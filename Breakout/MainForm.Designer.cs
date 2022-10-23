@@ -2,7 +2,7 @@
 
 namespace Breakout;
 
-sealed partial class MainForm {
+public sealed partial class MainForm {
 	/// <summary>
 	/// Required designer variable.
 	/// </summary>

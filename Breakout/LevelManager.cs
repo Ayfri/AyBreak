@@ -8,10 +8,16 @@ public record struct Level {
 	public int Number;
 }
 
-internal static class LevelManager {
+public static class LevelManager {
 	private const string LevelsFile = "levels.txt";
 
-	public static string[] Levels => File.ReadAllText(LevelsFile).Split(new[] { ";;;;;;;;;;;;;;;;;;;;;" }, StringSplitOptions.RemoveEmptyEntries);
+	public static string[] Levels => File.ReadAllText(LevelsFile)
+		.Split(
+			new[] {
+				";;;;;;;;;;;;;;;;;;;;;"
+			},
+			StringSplitOptions.RemoveEmptyEntries
+		);
 
 	public static Level LoadLevel(int index) => new() {
 		Layout = Levels[index],

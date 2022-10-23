@@ -63,7 +63,7 @@ public sealed class PowerUp : PictureBox {
 				break;
 
 			case PowerUpType.ScoreMultiplier:
-				collisionPayloadPayload.Game.ScoreMultiplier += (int) _value;
+				collisionPayloadPayload.Game.ScoreMultiplier += _value;
 				break;
 
 			default: throw new ArgumentOutOfRangeException();

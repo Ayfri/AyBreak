@@ -37,7 +37,12 @@ public sealed class MainMenuScene : AbstractScene {
 	public MainMenuScene() {
 		BackColor = Color.FromArgb(15, 15, 20);
 		Size = MainForm.GameSize;
-		Controls.AddRange(new Control[] { _startButton, _exitButton, _titleLabel, _creditsLabel });
+
+		Controls.AddRange(
+			new Control[] {
+				_startButton, _exitButton, _titleLabel, _creditsLabel
+			}
+		);
 	}
 
 	private sealed class MenuButton : Button {
@@ -45,7 +50,7 @@ public sealed class MainMenuScene : AbstractScene {
 			Text = text;
 			Size = new(200, 80);
 			Location = new(MainForm.GameSize.Width / 2 - Width / 2, MainForm.GameSize.Height / 2 - Height / 2 + offsetY);
-			Font = new("Arial", 20);
+			Font = new(Program.MainFont, 20);
 			BackColor = Color.FromArgb(20, 20, 30);
 			ForeColor = Color.White;
 			FlatStyle = FlatStyle.Flat;

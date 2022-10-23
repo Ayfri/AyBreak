@@ -16,23 +16,29 @@ public sealed class Brick : PictureBox {
 
 	public Brick(BrickType type) {
 		Type = type;
-		Tag = new[] { "Brick" };
+
+		Tag = new[] {
+			"Brick"
+		};
+
 		Width = BrickWidth;
 		Height = BrickHeight;
 		BackColor = type.GetColor(Health);
 		Health = type.MaxHealth;
-#if DEBUG
+		#if DEBUG
 		_label = new() {
 			AutoSize = true,
-			Font = new("Arial", 8),
+			Font = new(Program.MainFont, 8),
 			ForeColor = Color.White,
 			Location = new(0, 0),
-			Tag = new[] { "BrickHealth" },
+			Tag = new[] {
+				"BrickHealth"
+			},
 			Text = Health.ToString()
 		};
 
 		Controls.Add(_label);
-#endif
+		#endif
 	}
 
 	public int Health {
@@ -59,7 +65,7 @@ public sealed class Brick : PictureBox {
 
 		Type.OnCollision?.Invoke(collisionPayload);
 
-		if (!(Random.NextDouble() > .9)) return;
+		if (Random.NextDouble() > .1) return;
 
 		var powerUp = GeneratePowerUp(game);
 		powerUp.Location = new(Location.X + Width / 2, Location.Y + Height);
@@ -92,7 +98,7 @@ public sealed class Brick : PictureBox {
 			PowerUpType.IncreasePaddleSize => Random.Next(10, 50),
 			PowerUpType.MoreBall => 1,
 			PowerUpType.MoreLife => 1,
-			PowerUpType.ScoreMultiplier => Random.NextDouble() * 2,
+			PowerUpType.ScoreMultiplier => Random.NextDouble() / 3d,
 			_ => throw new ArgumentOutOfRangeException()
 		};
 

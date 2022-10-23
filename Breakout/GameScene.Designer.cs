@@ -1,5 +1,5 @@
 ﻿namespace Breakout {
-	sealed partial class GameScene {
+	public sealed partial class GameScene {
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>

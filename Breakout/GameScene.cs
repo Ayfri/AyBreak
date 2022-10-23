@@ -46,9 +46,9 @@ public sealed partial class GameScene : AbstractScene {
 		InitializeComponent();
 		AddBall();
 
-		for (var i = 0; i < 5; i++) {
-			AddBall();
-		}
+		#if DEBUG
+		for (var i = 0; i < 5; i++) AddBall();
+		#endif
 
 		_pauseMenu.Location = new(ClientSize.Width / 2 - _pauseMenu.Width / 2, ClientSize.Height / 2 - _pauseMenu.Height / 2);
 
@@ -109,7 +109,13 @@ public sealed partial class GameScene : AbstractScene {
 	 * The bricks are added to the Controls collection.
 	 */
 	private void GenerateBricks() {
-		var rows = Level.Layout.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+		var rows = Level.Layout.Split(
+			new[] {
+				Environment.NewLine
+			},
+			StringSplitOptions.None
+		);
+
 		var longestRow = rows.Max(static row => row.Length);
 
 		for (var rowIndex = 0; rowIndex < rows.Length; rowIndex++) {
@@ -155,10 +161,10 @@ public sealed partial class GameScene : AbstractScene {
 				ball.Location = new(Paddle.CenterX() - ball.Width / 2, Paddle.Top - ball.Height);
 				continue;
 			}
-#if DEBUG
+			#if DEBUG
 			if (_accelerate) ball.Speed = 2 * BallSpeedMultiplier;
 			else
-#endif
+				#endif
 				ball.Speed = .9f * BallSpeedMultiplier;
 
 			ball.Move(deltaTime);
