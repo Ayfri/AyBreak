@@ -155,9 +155,11 @@ public sealed partial class GameScene : AbstractScene {
 				ball.Location = new(Paddle.CenterX() - ball.Width / 2, Paddle.Top - ball.Height);
 				continue;
 			}
-
+#if DEBUG
 			if (_accelerate) ball.Speed = 2 * BallSpeedMultiplier;
-			else ball.Speed = .9f * BallSpeedMultiplier;
+			else
+#endif
+				ball.Speed = .9f * BallSpeedMultiplier;
 
 			ball.Move(deltaTime);
 
@@ -196,13 +198,14 @@ public sealed partial class GameScene : AbstractScene {
 		Controls.SetChildIndex(winLabel, 0);
 
 		var timer = new Timer(4 * 1000) {
-			Enabled = true
+			Enabled = true,
+			AutoReset = false
 		};
 
 		timer.Elapsed += (_, _) => {
 			AbstractScene scene = new LevelSelectionScene();
 
-			if (Level.Number < LevelManager.Levels.Length) {
+			if (Level.Number < LevelManager.Levels.Length - 1) {
 				var level = LevelManager.LoadLevel(Level.Number + 1);
 				scene = new GameScene(level);
 			}
@@ -288,13 +291,15 @@ public sealed partial class GameScene : AbstractScene {
 	}
 
 	private void PowerUpPhysics() {
+		var collisionPayload = new CollisionPayload {
+			Game = this
+		};
+
+		var paddleBounds = Paddle.Bounds;
+
 		for (var i = 0; i < _powerUps.Count; i++) {
 			var powerUp = _powerUps[i];
-			if (!powerUp.Bounds.IntersectsWith(Paddle.Bounds)) return;
-
-			var collisionPayload = new CollisionPayload {
-				Game = this
-			};
+			if (!powerUp.Bounds.IntersectsWith(paddleBounds)) continue;
 
 			powerUp.Apply(collisionPayload);
 			_powerUps.Remove(powerUp);

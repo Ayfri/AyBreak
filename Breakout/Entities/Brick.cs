@@ -1,7 +1,6 @@
 ﻿namespace Breakout.Entities;
 
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -22,7 +21,7 @@ public sealed class Brick : PictureBox {
 		Height = BrickHeight;
 		BackColor = type.GetColor(Health);
 		Health = type.MaxHealth;
-
+#if DEBUG
 		_label = new() {
 			AutoSize = true,
 			Font = new("Arial", 8),
@@ -32,7 +31,8 @@ public sealed class Brick : PictureBox {
 			Text = Health.ToString()
 		};
 
-		if (Debugger.IsAttached) Controls.Add(_label);
+		Controls.Add(_label);
+#endif
 	}
 
 	public int Health {
@@ -77,8 +77,8 @@ public sealed class Brick : PictureBox {
 
 			invalid = powerUpType switch {
 				PowerUpType.BallNoClip => game.IsNoClip,
-				PowerUpType.BallSpeedUp => game.BallSpeedMultiplier >= 2,
-				PowerUpType.IncreasePaddleSize => game.Paddle.Width >= 300,
+				PowerUpType.BallSpeedUp => game.BallSpeedMultiplier >= 1.8,
+				PowerUpType.IncreasePaddleSize => game.Paddle.Width >= game.ClientSize.Width / 2,
 				PowerUpType.MoreBall => game.BallCount >= 4,
 				PowerUpType.MoreLife => false,
 				PowerUpType.ScoreMultiplier => false,
