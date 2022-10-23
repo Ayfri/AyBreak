@@ -1,18 +1,18 @@
-﻿using System;
+﻿namespace Breakout;
+
+using System;
 using System.Drawing;
 using Breakout.Entities;
 
-namespace Breakout;
-
-public class CollisionPayload {
+public sealed class CollisionPayload {
 	public Ball Ball;
 	public Brick Brick;
 	public Point BrickPosition;
-	public GameScene Game;
+	public GameScene Game = null!;
 	public Side Side;
 }
 
-public class BrickType {
+public sealed class BrickType {
 	public Action<CollisionPayload>? OnCollision;
 	public BrickType() => MaxHealthColor = Color;
 	public string Name { get; set; } = "";

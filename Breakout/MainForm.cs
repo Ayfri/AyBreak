@@ -1,7 +1,7 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
+﻿namespace Breakout;
 
-namespace Breakout;
+using System.Drawing;
+using System.Windows.Forms;
 
 public partial class MainForm : Form {
 	public static Size GameSize = new(1920, 1080);

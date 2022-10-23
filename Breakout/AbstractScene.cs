@@ -1,6 +1,6 @@
-﻿using System.Windows.Forms;
+﻿namespace Breakout;
 
-namespace Breakout;
+using System.Windows.Forms;
 
 public class AbstractScene : Panel {
 	public virtual new void KeyDown(KeyEventArgs e) { }

@@ -1,7 +1,7 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
+﻿namespace Breakout.Entities;
 
-namespace Breakout.Entities;
+using System.Drawing;
+using System.Windows.Forms;
 
 public sealed class ScoreLabel : Label {
 	private const float Speed = .4f;
@@ -19,7 +19,7 @@ public sealed class ScoreLabel : Label {
 	}
 
 	public new bool Move(int deltaTime) {
-		Top -= (int)(Speed * deltaTime);
+		Top -= (int) (Speed * deltaTime);
 		return Top <= _maxY;
 	}
 }

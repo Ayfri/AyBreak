@@ -1,8 +1,8 @@
-﻿using System;
+﻿namespace Breakout;
+
+using System;
 using System.Drawing;
 using System.Windows.Forms;
-
-namespace Breakout;
 
 public class MainMenuScene : AbstractScene {
 	private readonly Label _creditsLabel = new() {
@@ -10,7 +10,7 @@ public class MainMenuScene : AbstractScene {
 		Text = "Ayfri",
 		Font = new("Candara", 30),
 		ForeColor = Color.White,
-		Location = new((int)(MainForm.GameSize.Width * .9), (int)(MainForm.GameSize.Height * .9))
+		Location = new((int) (MainForm.GameSize.Width * .9), (int) (MainForm.GameSize.Height * .9))
 	};
 
 	private readonly MenuButton _exitButton = new(

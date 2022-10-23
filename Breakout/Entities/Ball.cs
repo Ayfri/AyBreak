@@ -1,13 +1,13 @@
-﻿using System;
+﻿namespace Breakout.Entities;
+
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 using Breakout.Properties;
 
-namespace Breakout.Entities;
-
-public class Ball : PictureBox {
+public sealed class Ball : PictureBox {
 	private static readonly Random Random = new();
-	public PointF Velocity;
+	public PointF Velocity = new();
 
 	public Ball() {
 		Image = Resources.ball;
@@ -20,8 +20,8 @@ public class Ball : PictureBox {
 	public double Speed { get; set; }
 
 	public new void Move(int deltaTime) {
-		Left += (int)Math.Round(Velocity.X * Speed * deltaTime);
-		Top += (int)Math.Round(Velocity.Y * Speed * deltaTime);
+		Left += (int) Math.Round(Velocity.X * Speed * deltaTime);
+		Top += (int) Math.Round(Velocity.Y * Speed * deltaTime);
 	}
 
 	public void Reset() {
@@ -33,6 +33,6 @@ public class Ball : PictureBox {
 		Waiting = false;
 		const int delta = 15;
 		var angle = Random.Next(180 + delta, 360 - delta);
-		Velocity = new((float)Math.Cos(angle * Math.PI / 180d), (float)Math.Sin(angle * Math.PI / 180d));
+		Velocity = new((float) Math.Cos(angle * Math.PI / 180d), (float) Math.Sin(angle * Math.PI / 180d));
 	}
 }

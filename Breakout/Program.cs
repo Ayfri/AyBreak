@@ -1,7 +1,7 @@
-﻿using System;
-using System.Windows.Forms;
+﻿namespace Breakout;
 
-namespace Breakout;
+using System;
+using System.Windows.Forms;
 
 internal static class Program {
 	public static MainForm MainForm = null!;

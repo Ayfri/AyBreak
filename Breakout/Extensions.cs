@@ -1,7 +1,7 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
+﻿namespace Breakout;
 
-namespace Breakout;
+using System.Drawing;
+using System.Windows.Forms;
 
 public static class Extensions {
 	public static int CenterX(this Rectangle rect) => rect.X + rect.Width / 2;

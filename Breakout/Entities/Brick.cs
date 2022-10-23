@@ -1,9 +1,9 @@
-﻿using System;
+﻿namespace Breakout.Entities;
+
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
-
-namespace Breakout.Entities;
 
 public sealed class Brick : PictureBox {
 	public const int BrickWidth = 50;
@@ -60,11 +60,33 @@ public sealed class Brick : PictureBox {
 		Type.OnCollision?.Invoke(collisionPayload);
 
 		if (!(Random.NextDouble() > .9)) return;
-		
-		var powerUpCount = typeof(PowerUpType).GetEnumValues().Length;
-		var type = (PowerUpType)Random.Next(powerUpCount);
 
-		var value = type switch {
+		var powerUp = GeneratePowerUp(game);
+		powerUp.Location = new(Location.X + Width / 2, Location.Y + Height);
+		game.AddPowerUp(powerUp);
+	}
+
+	private static PowerUp GeneratePowerUp(GameScene game) {
+		var powerUpCount = typeof(PowerUpType).GetEnumValues().Length;
+
+		PowerUpType powerUpType;
+		bool invalid;
+
+		do {
+			powerUpType = (PowerUpType) Random.Next(powerUpCount);
+
+			invalid = powerUpType switch {
+				PowerUpType.BallNoClip => game.IsNoClip,
+				PowerUpType.BallSpeedUp => game.BallSpeedMultiplier >= 2,
+				PowerUpType.IncreasePaddleSize => game.Paddle.Width >= 300,
+				PowerUpType.MoreBall => game.BallCount >= 4,
+				PowerUpType.MoreLife => false,
+				PowerUpType.ScoreMultiplier => false,
+				_ => throw new ArgumentOutOfRangeException()
+			};
+		} while (invalid);
+
+		var value = powerUpType switch {
 			PowerUpType.BallNoClip => 1,
 			PowerUpType.BallSpeedUp => Random.NextDouble() * .1,
 			PowerUpType.IncreasePaddleSize => Random.Next(10, 50),
@@ -74,8 +96,7 @@ public sealed class Brick : PictureBox {
 			_ => throw new ArgumentOutOfRangeException()
 		};
 
-		var powerUp = new PowerUp(type, value);
-		powerUp.Location = new(Location.X + Width / 2, Location.Y + Height);
-		game.AddPowerUp(powerUp);
+		var powerUp = new PowerUp(powerUpType, value);
+		return powerUp;
 	}
 }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿namespace Breakout;
+
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -7,8 +9,6 @@ using System.Timers;
 using System.Windows.Forms;
 using Breakout.Entities;
 using Timer = System.Timers.Timer;
-
-namespace Breakout;
 
 public enum Side {
 	Left,
@@ -84,17 +84,58 @@ public sealed class PauseMenu : Panel {
 public partial class GameScene : AbstractScene {
 	private const int TimerInterval = 1000 / 60;
 
+	private const int PaddleSpeed = 1;
+
 	private static readonly Dictionary<string, BrickType> BricksTypes = new() {
-		{ " ", new() { Name = "Empty", Color = Color.Transparent } },
-		{ "-23", new() { Name = "Brick", Color = Color.Red, MaxHealthColor = Color.Orange, Score = 10, MaxHealth = 3 } }, {
+		{
+			" ", new() {
+				Name = "Empty",
+				Color = Color.Transparent
+			}
+		}, {
+			"-23", new() {
+				Name = "Brick",
+				Color = Color.Red,
+				MaxHealthColor = Color.Orange,
+				Score = 10,
+				MaxHealth = 3
+			}
+		}, {
 			"*", new() {
-				Name = "Explosion", Color = Color.Purple, Score = 30, OnCollision = static collisionPayload => {
+				Name = "Explosion",
+				Color = Color.Purple,
+				Score = 30,
+				OnCollision = static collisionPayload => {
 					var brickPos = collisionPayload.BrickPosition;
 					var game = collisionPayload.Game;
-					game.GetBrick(brickPos with { X = brickPos.X + 1 })?.Hit(game, collisionPayload.Ball, Side.Left);
-					game.GetBrick(brickPos with { X = brickPos.X - 1 })?.Hit(game, collisionPayload.Ball, Side.Right);
-					game.GetBrick(brickPos with { Y = brickPos.Y + 1 })?.Hit(game, collisionPayload.Ball, Side.Top);
-					game.GetBrick(brickPos with { Y = brickPos.Y - 1 })?.Hit(game, collisionPayload.Ball, Side.Bottom);
+
+					game.GetBrick(
+							brickPos with {
+								X = brickPos.X + 1
+							}
+						)
+						?.Hit(game, collisionPayload.Ball, Side.Left);
+
+					game.GetBrick(
+							brickPos with {
+								X = brickPos.X - 1
+							}
+						)
+						?.Hit(game, collisionPayload.Ball, Side.Right);
+
+					game.GetBrick(
+							brickPos with {
+								Y = brickPos.Y + 1
+							}
+						)
+						?.Hit(game, collisionPayload.Ball, Side.Top);
+
+					game.GetBrick(
+							brickPos with {
+								Y = brickPos.Y - 1
+							}
+						)
+						?.Hit(game, collisionPayload.Ball, Side.Bottom);
 				}
 			}
 		}
@@ -103,6 +144,10 @@ public partial class GameScene : AbstractScene {
 	private readonly List<Ball> _balls = new();
 	private readonly List<Brick> _bricks;
 
+	private readonly Timer _noClipTimer = new() {
+		Interval = 5000
+	};
+
 	private readonly PauseMenu _pauseMenu = new();
 	private readonly List<PowerUp> _powerUps = new();
 	private readonly List<ScoreLabel> _scoreLabels = new();
@@ -110,47 +155,42 @@ public partial class GameScene : AbstractScene {
 	public readonly string BricksLayout;
 
 	private bool _accelerate;
-	private bool _noClip;
 	private int _score;
 	public double BallSpeedMultiplier = 1;
 	public int Lives = 5;
-
-	private readonly Timer _noClipTimer = new() {
-		Interval = 5000
-	};
 
 	public double ScoreMultiplier = 1;
 
 	public GameScene(string bricksLayout) {
 		BricksLayout = bricksLayout;
 		InitializeComponent();
-		// Ball.Reset();
-		// Controls.Add(Ball);
 		AddBall();
 
-		/*
-		for (var i = 0; i < 10; i++) {
+		for (var i = 0; i < 5; i++) {
 			AddBall();
-		}*/
+		}
 
 		_pauseMenu.Location = new(ClientSize.Width / 2 - _pauseMenu.Width / 2, ClientSize.Height / 2 - _pauseMenu.Height / 2);
 
 		Paddle.Left = ClientSize.Width / 2 - Paddle.Width / 2;
-		Paddle.Top = (int)(ClientSize.Height * .9) - Paddle.Height;
+		Paddle.Top = (int) (ClientSize.Height * .9) - Paddle.Height;
 
 		physicsTimer.Interval = TimerInterval;
 		_bricks = new(Regex.Replace(BricksLayout, @"\s+", "").Length);
 		GenerateBricks();
 
 		_noClipTimer.Elapsed += (_, _) => {
-			_noClip = false;
+			IsNoClip = false;
 			_noClipTimer.Stop();
 		};
 	}
 
-	public int PaddleSpeed { get; set; } = 1;
 	private bool LeftPressed { get; set; }
 	private bool RightPressed { get; set; }
+
+	public int BallCount => _balls.Count;
+
+	public bool IsNoClip { get; private set; }
 
 	public void AddBall() {
 		var ball = new Ball();
@@ -168,10 +208,10 @@ public partial class GameScene : AbstractScene {
 	public void RemoveBrick(Brick brick) {
 		_bricks.Remove(brick);
 		Controls.Remove(brick);
-		_score += (int)(brick.Type.Score * ScoreMultiplier);
+		_score += (int) (brick.Type.Score * ScoreMultiplier);
 
 		if (_scoreLabels.Count > 10) return;
-		var scoreLabel = new ScoreLabel(brick.Location, brick.Top - 80, (int)(brick.Type.Score * ScoreMultiplier));
+		var scoreLabel = new ScoreLabel(brick.Location, brick.Top - 80, (int) (brick.Type.Score * ScoreMultiplier));
 		_scoreLabels.Add(scoreLabel);
 		Controls.Add(scoreLabel);
 		Controls.SetChildIndex(scoreLabel, 0);
@@ -179,7 +219,7 @@ public partial class GameScene : AbstractScene {
 
 	public Brick? GetBrick(Point pos) =>
 		(from brick in _bricks let brickPos = new Point(brick.Left / Brick.BrickWidth, brick.Top / Brick.BrickHeight) where brickPos == pos select brick)
-	   .FirstOrDefault();
+		.FirstOrDefault();
 
 	public Point GetBrickPos(Brick brick) => new(brick.Left / Brick.BrickWidth, brick.Top / Brick.BrickHeight);
 
@@ -191,7 +231,7 @@ public partial class GameScene : AbstractScene {
 	 */
 	private void GenerateBricks() {
 		var rows = BricksLayout.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-		var longestRow = rows.Max(row => row.Length);
+		var longestRow = rows.Max(static row => row.Length);
 
 		for (var rowIndex = 0; rowIndex < rows.Length; rowIndex++) {
 			var row = rows[rowIndex];
@@ -202,7 +242,8 @@ public partial class GameScene : AbstractScene {
 				var startY = (ClientSize.Height - (Brick.BrickHeight + Brick.BrickMargin) * rows.Length) / 5;
 
 				// search if character is included in a brick key
-				foreach (var brick in from brickEntry in BricksTypes
+				foreach (var brick in
+					from brickEntry in BricksTypes
 					let character = row[colIndex].ToString()
 					where brickEntry.Key.Contains(character)
 					where !brickEntry.Value.IsEmpty
@@ -222,8 +263,8 @@ public partial class GameScene : AbstractScene {
 		}
 	}
 
-	private void GameLoop(object sender, ElapsedEventArgs e) {
-		var deltaTime = (int)(e.SignalTime - e.SignalTime.AddMilliseconds(-TimerInterval)).TotalMilliseconds;
+	private void GameLoop(object _, ElapsedEventArgs e) {
+		var deltaTime = (int) (e.SignalTime - e.SignalTime.AddMilliseconds(-TimerInterval)).TotalMilliseconds;
 		MovePaddle(deltaTime);
 
 		foreach (var ball in _balls) {
@@ -256,7 +297,7 @@ public partial class GameScene : AbstractScene {
 	}
 
 	public void NoClip() {
-		_noClip = true;
+		IsNoClip = true;
 		if (_noClipTimer.Enabled) _noClipTimer.Stop();
 		_noClipTimer.Start();
 	}
@@ -290,17 +331,19 @@ public partial class GameScene : AbstractScene {
 
 	private void BricksPhysics(Ball ball) {
 		var ballRect = ball.Bounds;
-		var nextBallRect = new Rectangle((int)(ball.Left + ball.Velocity.X), (int)(ball.Top + ball.Velocity.Y), ball.Width, ball.Height);
+		var nextBallRect = new Rectangle((int) (ball.Left + ball.Velocity.X), (int) (ball.Top + ball.Velocity.Y), ball.Width, ball.Height);
 		var touchingBricks = _bricks.Where(brick => brick.Bounds.IntersectsWith(nextBallRect)).ToList();
 		if (touchingBricks.Count == 0) return;
 
 		// search the most touched brick
 		var mostTouchedBrick = touchingBricks.Select(
-			brick => new {
-				brick,
-				brickRectIntersect = Rectangle.Intersect(brick.Bounds, ballRect)
-			}
-		).OrderByDescending(static brick => brick.brickRectIntersect.Width * brick.brickRectIntersect.Height).FirstOrDefault();
+				brick => new {
+					brick,
+					brickRectIntersect = Rectangle.Intersect(brick.Bounds, ballRect)
+				}
+			)
+			.OrderByDescending(static brick => brick.brickRectIntersect.Width * brick.brickRectIntersect.Height)
+			.FirstOrDefault();
 
 		if (mostTouchedBrick?.brick == null) return;
 		var brick = mostTouchedBrick.brick!;
@@ -308,9 +351,11 @@ public partial class GameScene : AbstractScene {
 		var touchingSide =
 			mostTouchedBrick.brickRectIntersect.Width > mostTouchedBrick.brickRectIntersect.Height
 				? ball.Top < brick.Top ? Side.Top : Side.Bottom
-				: ball.Left < brick.Left ? Side.Left : Side.Right;
+				: ball.Left < brick.Left
+					? Side.Left
+					: Side.Right;
 
-		if (!_noClip) {
+		if (!IsNoClip) {
 			// determine the new velocity based on the side
 			switch (touchingSide) {
 				case Side.Bottom or Side.Top:
@@ -332,7 +377,9 @@ public partial class GameScene : AbstractScene {
 			var powerUp = _powerUps[i];
 			if (!powerUp.Bounds.IntersectsWith(Paddle.Bounds)) return;
 
-			var collisionPayload = new CollisionPayload { Game = this };
+			var collisionPayload = new CollisionPayload {
+				Game = this
+			};
 
 			powerUp.Apply(collisionPayload);
 			_powerUps.Remove(powerUp);
@@ -350,7 +397,7 @@ public partial class GameScene : AbstractScene {
 		const int maxAngle = 0 - delta;
 		finalAngle = Math.Max(minAngle, Math.Min(maxAngle, finalAngle));
 
-		ball.Velocity = new((float)Math.Cos(finalAngle * Math.PI / 180d), (float)Math.Sin(finalAngle * Math.PI / 180d));
+		ball.Velocity = new((float) Math.Cos(finalAngle * Math.PI / 180d), (float) Math.Sin(finalAngle * Math.PI / 180d));
 	}
 
 	public override void KeyDown(KeyEventArgs e) {
@@ -383,20 +430,22 @@ public partial class GameScene : AbstractScene {
 		Controls.Add(_pauseMenu);
 		_pauseMenu.BringToFront();
 		physicsTimer.Stop();
+		movingObjectsTimer.Stop();
 	}
 
 	public void HidePauseMenu() {
 		Controls.Remove(_pauseMenu);
 		physicsTimer.Start();
+		movingObjectsTimer.Start();
 	}
 
 	private void MovingObjectsLoop(object sender, ElapsedEventArgs e) {
-		var deltaTime = (int)(e.SignalTime - e.SignalTime.AddMilliseconds(-TimerInterval)).TotalMilliseconds;
+		var deltaTime = (int) (e.SignalTime - e.SignalTime.AddMilliseconds(-TimerInterval)).TotalMilliseconds;
 
 		MovePowerUps(deltaTime);
 		MoveScoreLabels(deltaTime);
 		PowerUpPhysics();
-		
+
 		debugLabel.Visible = debugLabel.Text.Length > 0;
 
 		ScoreLabel.Text = $"Score: {_score}";
