@@ -35,7 +35,7 @@ public sealed partial class MainForm {
 		this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 		this.ClientSize = new System.Drawing.Size(1920, 1080);
 		this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-		this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+		this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
 		this.Name = "MainForm";
 		this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 		this.Text = "MainForm";

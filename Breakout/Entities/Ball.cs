@@ -19,6 +19,10 @@ public sealed class Ball : PictureBox {
 
 	public double Speed { get; set; }
 
+	public void MoveToPaddle(Control paddle) {
+		Location = new(paddle.CenterX() - Width / 2, paddle.Top - Height);
+	}
+
 	public new void Move(int deltaTime) {
 		Left += (int) Math.Round(Velocity.X * Speed * deltaTime);
 		Top += (int) Math.Round(Velocity.Y * Speed * deltaTime);

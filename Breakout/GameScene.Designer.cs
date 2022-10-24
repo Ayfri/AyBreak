@@ -1,4 +1,6 @@
 ﻿namespace Breakout {
+	using System.Windows.Forms;
+
 	public sealed partial class GameScene {
 		/// <summary>
 		/// Required designer variable.
@@ -31,15 +33,15 @@
 			this.debugLabel = new System.Windows.Forms.Label();
 			this.LivesLabel = new System.Windows.Forms.Label();
 			this.movingObjectsTimer = new System.Timers.Timer();
-			((System.ComponentModel.ISupportInitialize)(this.Paddle)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.physicsTimer)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.movingObjectsTimer)).BeginInit();
+			((System.ComponentModel.ISupportInitialize) (this.Paddle)).BeginInit();
+			((System.ComponentModel.ISupportInitialize) (this.physicsTimer)).BeginInit();
+			((System.ComponentModel.ISupportInitialize) (this.movingObjectsTimer)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// Paddle
 			// 
 			this.Paddle.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-			this.Paddle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+			this.Paddle.BackColor = System.Drawing.Color.FromArgb(((int) (((byte) (224)))), ((int) (((byte) (224)))), ((int) (((byte) (224)))));
 			this.Paddle.Location = new System.Drawing.Point(430, 896);
 			this.Paddle.Name = "Paddle";
 			this.Paddle.Size = new System.Drawing.Size(110, 20);
@@ -56,7 +58,7 @@
 			// 
 			this.ScoreLabel.AutoSize = true;
 			this.ScoreLabel.BackColor = System.Drawing.Color.Black;
-			this.ScoreLabel.Font = new System.Drawing.Font("Consolas", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.ScoreLabel.Font = new System.Drawing.Font("Consolas", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (0)));
 			this.ScoreLabel.ForeColor = System.Drawing.Color.White;
 			this.ScoreLabel.Location = new System.Drawing.Point(18, 25);
 			this.ScoreLabel.Name = "ScoreLabel";
@@ -68,7 +70,7 @@
 			// debugLabel
 			// 
 			this.debugLabel.AutoSize = true;
-			this.debugLabel.Font = new System.Drawing.Font("Consolas", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.debugLabel.Font = new System.Drawing.Font("Consolas", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (0)));
 			this.debugLabel.Location = new System.Drawing.Point(30, 77);
 			this.debugLabel.Name = "debugLabel";
 			this.debugLabel.Size = new System.Drawing.Size(0, 32);
@@ -78,7 +80,7 @@
 			// 
 			this.LivesLabel.AutoSize = true;
 			this.LivesLabel.BackColor = System.Drawing.Color.Transparent;
-			this.LivesLabel.Font = new System.Drawing.Font("Consolas", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.LivesLabel.Font = new System.Drawing.Font("Consolas", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (0)));
 			this.LivesLabel.ForeColor = System.Drawing.Color.White;
 			this.LivesLabel.Location = new System.Drawing.Point(300, 25);
 			this.LivesLabel.Name = "LivesLabel";
@@ -97,21 +99,21 @@
 			// 
 			this.AccessibleDescription = "A game";
 			this.AccessibleName = "Breakout";
-			this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(3)))), ((int)(((byte)(3)))), ((int)(((byte)(8)))));
+			this.BackColor = System.Drawing.Color.FromArgb(((int) (((byte) (3)))), ((int) (((byte) (3)))), ((int) (((byte) (8)))));
 			this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.Controls.Add(this.LivesLabel);
 			this.Controls.Add(this.debugLabel);
 			this.Controls.Add(this.ScoreLabel);
 			this.Controls.Add(this.Paddle);
-			this.Font = new System.Drawing.Font("JetBrains Mono", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.Font = new System.Drawing.Font("JetBrains Mono", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (0)));
 			this.ForeColor = System.Drawing.Color.Transparent;
 			this.Margin = new System.Windows.Forms.Padding(4);
 			this.RightToLeft = System.Windows.Forms.RightToLeft.No;
 			this.Size = new System.Drawing.Size(1920, 1061);
 			this.Text = "Breakout";
-			((System.ComponentModel.ISupportInitialize)(this.Paddle)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.physicsTimer)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.movingObjectsTimer)).EndInit();
+			((System.ComponentModel.ISupportInitialize) (this.Paddle)).EndInit();
+			((System.ComponentModel.ISupportInitialize) (this.physicsTimer)).EndInit();
+			((System.ComponentModel.ISupportInitialize) (this.movingObjectsTimer)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}

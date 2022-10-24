@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -39,6 +40,7 @@ public sealed partial class GameScene : AbstractScene {
 
 	public double BallSpeedMultiplier = 1;
 	public int Lives = 5;
+	private bool _isPaused => Controls.Contains(_pauseMenu);
 
 	public GameScene(Level level) {
 		Level = level;
@@ -159,7 +161,7 @@ public sealed partial class GameScene : AbstractScene {
 			var ball = _balls[index];
 
 			if (ball.Waiting) {
-				ball.Location = new(Paddle.CenterX() - ball.Width / 2, Paddle.Top - ball.Height);
+				ball.MoveToPaddle(Paddle);
 				continue;
 			}
 			
@@ -348,7 +350,7 @@ public sealed partial class GameScene : AbstractScene {
 			}
 
 		if (e.KeyCode == Keys.Escape) {
-			if (Controls.Contains(_pauseMenu)) HidePauseMenu();
+			if (_isPaused) HidePauseMenu();
 			else ShowPauseMenu();
 		}
 	}
@@ -383,5 +385,17 @@ public sealed partial class GameScene : AbstractScene {
 
 		ScoreLabel.Text = $"Score: {Score}";
 		LivesLabel.Text = $"Lives: {Lives}";
+	}
+
+	public override void MouseMove(MouseEventArgs e) {
+		if (_isPaused) return;
+
+		if (e.X < Paddle.Width / 2) Paddle.Left = 0;
+		else if (e.X > Width - Paddle.Width / 2) Paddle.Left = Width - Paddle.Width;
+		else Paddle.Left = e.X - Paddle.Width / 2;
+
+		foreach (var ball in _balls.Where(static ball => ball.Waiting)) {
+			ball.MoveToPaddle(Paddle);
+		}
 	}
 }

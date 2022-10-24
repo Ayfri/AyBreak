@@ -1,7 +1,9 @@
 ﻿namespace Breakout;
 
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
+using Entities;
 
 public sealed partial class MainForm : Form {
 	public static Size GameSize = new(1920, 1080);
@@ -13,6 +15,10 @@ public sealed partial class MainForm : Form {
 		_scene.Location = new(0, 0);
 		_scene.Dock = DockStyle.Fill;
 		_scene.Size = Size;
+
+		var gmh = new GlobalMouseHandler();
+		gmh.MouseMovedEvent += args => _scene.MouseMove(args);
+		Application.AddMessageFilter(gmh);
 	}
 
 	public void ChangeScene(AbstractScene newScene) {
