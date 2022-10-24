@@ -8,10 +8,10 @@ public sealed class Brick : PictureBox {
 	public const int BrickWidth = 50;
 	public const int BrickHeight = 20;
 	public const int BrickMargin = 1;
+	private static readonly int[] ScoreValues = { 200, 500, 1000 };
 	private static readonly Random Random = new();
 	private readonly Label? _label;
 	public readonly BrickType Type;
-
 	private int _health;
 
 	public Brick(BrickType type) {
@@ -84,6 +84,7 @@ public sealed class Brick : PictureBox {
 			invalid = powerUpType switch {
 				PowerUpType.BallNoClip => game.IsNoClip,
 				PowerUpType.BallSpeedUp => game.BallSpeedMultiplier >= 1.8,
+				PowerUpType.BallSpeedDown => game.BallSpeedMultiplier <= .4,
 				PowerUpType.IncreasePaddleSize => game.Paddle.Width >= game.ClientSize.Width / 2,
 				PowerUpType.MoreBall => game.BallCount >= 4,
 				PowerUpType.MoreLife => false,
@@ -92,13 +93,15 @@ public sealed class Brick : PictureBox {
 			};
 		} while (invalid);
 
+
 		var value = powerUpType switch {
 			PowerUpType.BallNoClip => 1,
-			PowerUpType.BallSpeedUp => Random.NextDouble() * .1,
+			PowerUpType.BallSpeedUp => Random.NextDouble() * .2,
+			PowerUpType.BallSpeedDown => Random.NextDouble() * .2,
 			PowerUpType.IncreasePaddleSize => Random.Next(10, 50),
 			PowerUpType.MoreBall => 1,
 			PowerUpType.MoreLife => 1,
-			PowerUpType.ScoreMultiplier => Random.NextDouble() / 3d,
+			PowerUpType.ScoreMultiplier => ScoreValues[Random.Next(ScoreValues.Length - 1)],
 			_ => throw new ArgumentOutOfRangeException()
 		};
 

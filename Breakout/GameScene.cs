@@ -35,11 +35,10 @@ public sealed partial class GameScene : AbstractScene {
 	public readonly Level Level;
 
 	private bool _accelerate;
-	private int _score;
+	public int Score;
 
 	public double BallSpeedMultiplier = 1;
 	public int Lives = 5;
-	public double ScoreMultiplier = 1;
 
 	public GameScene(Level level) {
 		Level = level;
@@ -88,10 +87,10 @@ public sealed partial class GameScene : AbstractScene {
 	public void RemoveBrick(Brick brick) {
 		_bricks.Remove(brick);
 		Controls.Remove(brick);
-		_score += (int) (brick.Type.Score * ScoreMultiplier);
+		Score += brick.Type.Score;
 
 		if (_scoreLabels.Count > 10) return;
-		var scoreLabel = new ScoreLabel(brick.Location, brick.Top - 80, (int) (brick.Type.Score * ScoreMultiplier));
+		var scoreLabel = new ScoreLabel(brick.Location, brick.Top - 80, brick.Type.Score);
 		_scoreLabels.Add(scoreLabel);
 		Controls.Add(scoreLabel);
 		Controls.SetChildIndex(scoreLabel, 0);
@@ -163,6 +162,7 @@ public sealed partial class GameScene : AbstractScene {
 				ball.Location = new(Paddle.CenterX() - ball.Width / 2, Paddle.Top - ball.Height);
 				continue;
 			}
+			
 			#if DEBUG
 			if (_accelerate) ball.Speed = 2 * BallSpeedMultiplier;
 			else
@@ -381,7 +381,7 @@ public sealed partial class GameScene : AbstractScene {
 
 		debugLabel.Visible = debugLabel.Text.Length > 0;
 
-		ScoreLabel.Text = $"Score: {_score}";
+		ScoreLabel.Text = $"Score: {Score}";
 		LivesLabel.Text = $"Lives: {Lives}";
 	}
 }
