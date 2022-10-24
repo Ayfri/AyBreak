@@ -156,7 +156,9 @@ public sealed partial class GameScene : AbstractScene {
 
 		if (_bricks.Count == 0) Win();
 
-		foreach (var ball in _balls) {
+		for (var index = 0; index < _balls.Count; index++) {
+			var ball = _balls[index];
+
 			if (ball.Waiting) {
 				ball.Location = new(Paddle.CenterX() - ball.Width / 2, Paddle.Top - ball.Height);
 				continue;
@@ -174,9 +176,14 @@ public sealed partial class GameScene : AbstractScene {
 			if (ball.Top < 0) {
 				ball.Velocity.Y *= -1;
 			} else if (ball.Top > ClientSize.Height - ball.Height) {
-				ball.Reset();
-				Lives--;
-				Invalidate();
+				if (_balls.Count > 1) {
+					_balls.Remove(ball);
+					Controls.Remove(ball);
+				} else {
+					ball.Reset();
+					Lives--;
+				}
+
 				continue;
 			}
 
