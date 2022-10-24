@@ -8,7 +8,6 @@ public sealed class Brick : PictureBox {
 	public const int BrickWidth = 50;
 	public const int BrickHeight = 20;
 	public const int BrickMargin = 1;
-	private static readonly int[] ScoreValues = { 200, 500, 1000 };
 	private static readonly Random Random = new();
 	private readonly Label? _label;
 	public readonly BrickType Type;
@@ -67,45 +66,8 @@ public sealed class Brick : PictureBox {
 
 		if (Random.NextDouble() > .1) return;
 
-		var powerUp = GeneratePowerUp(game);
+		var powerUp = PowerUp.GeneratePowerUp(game);
 		powerUp.Location = new(Location.X + Width / 2, Location.Y + Height);
 		game.AddPowerUp(powerUp);
-	}
-
-	private static PowerUp GeneratePowerUp(GameScene game) {
-		var powerUpCount = typeof(PowerUpType).GetEnumValues().Length;
-
-		PowerUpType powerUpType;
-		bool invalid;
-
-		do {
-			powerUpType = (PowerUpType) Random.Next(powerUpCount);
-
-			invalid = powerUpType switch {
-				PowerUpType.BallNoClip => game.IsNoClip,
-				PowerUpType.BallSpeedUp => game.BallSpeedMultiplier >= 1.8,
-				PowerUpType.BallSpeedDown => game.BallSpeedMultiplier <= .4,
-				PowerUpType.IncreasePaddleSize => game.Paddle.Width >= game.ClientSize.Width / 2,
-				PowerUpType.MoreBall => game.BallCount >= 4,
-				PowerUpType.MoreLife => false,
-				PowerUpType.ScoreMultiplier => false,
-				_ => throw new ArgumentOutOfRangeException()
-			};
-		} while (invalid);
-
-
-		var value = powerUpType switch {
-			PowerUpType.BallNoClip => 1,
-			PowerUpType.BallSpeedUp => Random.NextDouble() * .2,
-			PowerUpType.BallSpeedDown => Random.NextDouble() * .2,
-			PowerUpType.IncreasePaddleSize => Random.Next(10, 50),
-			PowerUpType.MoreBall => 1,
-			PowerUpType.MoreLife => 1,
-			PowerUpType.ScoreMultiplier => ScoreValues[Random.Next(ScoreValues.Length - 1)],
-			_ => throw new ArgumentOutOfRangeException()
-		};
-
-		var powerUp = new PowerUp(powerUpType, value);
-		return powerUp;
 	}
 }
