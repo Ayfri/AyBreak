@@ -26,12 +26,12 @@ public sealed class MainMenuScene : AbstractScene {
 	);
 
 	private readonly Label _titleLabel = new() {
-		Text = "Breakout",
+		Text = "AyBreak",
 		Font = new(Program.MainFont, 80),
-		Width = 480,
-		Height = 120,
+		Width = 450,
+		Height = 130,
 		ForeColor = Color.White,
-		Location = new(MainForm.GameSize.Width / 2 - 230, MainForm.GameSize.Height / 6)
+		Location = new(MainForm.GameSize.Width / 2 - 210, MainForm.GameSize.Height / 6)
 	};
 
 	public MainMenuScene() {

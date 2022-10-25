@@ -57,7 +57,7 @@ public sealed class Brick : PictureBox {
 		if (!Type.ValidateHit?.Invoke(collisionPayload) ?? false) return false;
 		Health--;
 		if (Health > 0) return false;
-		
+
 		game.RemoveBrick(this);
 		Type.OnCollision?.Invoke(collisionPayload);
 
@@ -66,7 +66,7 @@ public sealed class Brick : PictureBox {
 		var powerUp = PowerUp.GeneratePowerUp(game);
 		powerUp.Location = new(Location.X + Width / 2, Location.Y + Height);
 		game.AddPowerUp(powerUp);
-		
+
 		return true;
 	}
 }
