@@ -47,7 +47,7 @@ public sealed partial class GameScene : AbstractScene {
 		AddBall();
 
 		#if DEBUG
-		for (var i = 0; i < 5; i++) AddBall();
+		for (var i = 0; i < 1; i++) AddBall();
 		#endif
 
 		_pauseMenu.Location = new(ClientSize.Width / 2 - _pauseMenu.Width / 2, ClientSize.Height / 2 - _pauseMenu.Height / 2);
@@ -156,7 +156,7 @@ public sealed partial class GameScene : AbstractScene {
 		var deltaTime = (int) (e.SignalTime - e.SignalTime.AddMilliseconds(-TimerInterval)).TotalMilliseconds;
 		MovePaddle(deltaTime);
 
-		if (_bricks.Count == 0) Win();
+		if (_bricks.Count(static b => b.Type.ValidateHit == null) == 0) Win();
 
 		if (Lives == 0) Lose();
 
@@ -297,8 +297,7 @@ public sealed partial class GameScene : AbstractScene {
 					? Side.Left
 					: Side.Right;
 
-		if (!IsNoClip) {
-			// determine the new velocity based on the side
+		void BounceBall() {
 			switch (touchingSide) {
 				case Side.Bottom or Side.Top:
 					ball.Velocity.Y *= -1;
@@ -310,8 +309,16 @@ public sealed partial class GameScene : AbstractScene {
 			}
 		}
 
-		// hit the brick
-		mostTouchedBrick.brick.Hit(this, ball, touchingSide);
+		// if the ball noClip, always set health to 1 (as no brick can be destroyed via noclip has more than 1 health)
+		// if the brick is not broken (so not destructible by noClip), bounce the ball
+		// else just bounce the ball
+		if (IsNoClip) {
+			mostTouchedBrick.brick.Health = 1;
+			if (!mostTouchedBrick.brick.Hit(this, ball, touchingSide)) BounceBall();
+		} else {
+			BounceBall();
+			mostTouchedBrick.brick.Hit(this, ball, touchingSide);
+		}
 	}
 
 	private void PowerUpPhysics() {

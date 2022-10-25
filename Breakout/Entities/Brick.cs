@@ -45,11 +45,7 @@ public sealed class Brick : PictureBox {
 		}
 	}
 
-	public void Hit(GameScene game, Ball ball, Side touchedSide) {
-		Health--;
-		if (Health > 0) return;
-		game.RemoveBrick(this);
-
+	public bool Hit(GameScene game, Ball ball, Side touchedSide) {
 		var collisionPayload = new CollisionPayload {
 			Game = game,
 			Brick = this,
@@ -58,12 +54,19 @@ public sealed class Brick : PictureBox {
 			BrickPosition = game.GetBrickPos(this)
 		};
 
+		if (!Type.ValidateHit?.Invoke(collisionPayload) ?? false) return false;
+		Health--;
+		if (Health > 0) return false;
+		
+		game.RemoveBrick(this);
 		Type.OnCollision?.Invoke(collisionPayload);
 
-		if (Random.NextDouble() > .1) return;
+		if (Random.NextDouble() > .1) return true;
 
 		var powerUp = PowerUp.GeneratePowerUp(game);
 		powerUp.Location = new(Location.X + Width / 2, Location.Y + Height);
 		game.AddPowerUp(powerUp);
+		
+		return true;
 	}
 }

@@ -66,10 +66,69 @@ public sealed class BrickType {
 						?.Hit(game, collisionPayload.Ball, Side.Bottom);
 				}
 			}
+		},
+		{
+			"x", new() {
+				Name = "Indestructible",
+				Color = Color.FromArgb(90, 90, 100),
+				Score = 0,
+				ValidateHit = static _ => false
+			}
+		},
+		{
+			"@", new() {
+				Name = "Semi-Destructible",
+				Color = Color.FromArgb(50, 50, 70),
+				Score = 20,
+				ValidateHit = static collisionPayload => collisionPayload.Game.IsNoClip
+			}
+		},
+		{
+			"g", new() {
+				Name = "Green",
+				Color = Color.Green,
+				Score = 10
+			}
+		},
+		{
+			"b", new() {
+				Name = "Blue",
+				Color = Color.Blue,
+				Score = 10
+			}
+		},
+		{
+			"m", new() {
+				Name = "Magenta",
+				Color = Color.Magenta,
+				Score = 10
+			}
+		},
+		{
+			"t", new() {
+				Name = "Turquoise",
+				Color = Color.Turquoise,
+				Score = 10
+			}
+		},
+		{
+			"w", new() {
+				Name = "White",
+				Color = Color.White,
+				Score = 10
+			}
+		},
+		{
+			"d", new() {
+				Name = "Dark",
+				Color = Color.FromArgb(150, 150, 170),
+				Score = 10
+			}
 		}
 	};
 
 	public Action<CollisionPayload>? OnCollision;
+	public Func<CollisionPayload, bool>? ValidateHit;
 	public BrickType() => MaxHealthColor = Color;
 	public string Name { get; set; } = "";
 	public Color Color { get; set; }
