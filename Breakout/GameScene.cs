@@ -39,6 +39,7 @@ public sealed partial class GameScene : AbstractScene {
 	public double BallSpeedMultiplier = 1;
 	public int Lives = 5;
 	public int Score;
+	private Point _lastMouse = new(-1, -1);
 
 	public GameScene(Level level) {
 		Level = level;
@@ -397,6 +398,9 @@ public sealed partial class GameScene : AbstractScene {
 
 	public override void MouseMove(MouseEventArgs e) {
 		if (_isPaused) return;
+		
+		if (e.Location == _lastMouse) return;
+		_lastMouse = e.Location;
 
 		if (e.X < Paddle.Width / 2) Paddle.Left = 0;
 		else if (e.X > Width - Paddle.Width / 2) Paddle.Left = Width - Paddle.Width;
