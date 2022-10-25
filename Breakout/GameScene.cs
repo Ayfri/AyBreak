@@ -2,13 +2,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Timers;
 using System.Windows.Forms;
-using Breakout.Entities;
+using Entities;
 using Timer = System.Timers.Timer;
 
 public enum Side {
@@ -36,11 +35,10 @@ public sealed partial class GameScene : AbstractScene {
 	public readonly Level Level;
 
 	private bool _accelerate;
-	public int Score;
 
 	public double BallSpeedMultiplier = 1;
 	public int Lives = 5;
-	private bool _isPaused => Controls.Contains(_pauseMenu);
+	public int Score;
 
 	public GameScene(Level level) {
 		Level = level;
@@ -65,6 +63,8 @@ public sealed partial class GameScene : AbstractScene {
 			_noClipTimer.Stop();
 		};
 	}
+
+	private bool _isPaused => Controls.Contains(_pauseMenu);
 
 	private bool LeftPressed { get; set; }
 	private bool RightPressed { get; set; }
@@ -157,6 +157,8 @@ public sealed partial class GameScene : AbstractScene {
 
 		if (_bricks.Count == 0) Win();
 
+		if (Lives == 0) Lose();
+
 		for (var index = 0; index < _balls.Count; index++) {
 			var ball = _balls[index];
 
@@ -164,7 +166,7 @@ public sealed partial class GameScene : AbstractScene {
 				ball.MoveToPaddle(Paddle);
 				continue;
 			}
-			
+
 			#if DEBUG
 			if (_accelerate) ball.Speed = 2 * BallSpeedMultiplier;
 			else
@@ -194,6 +196,12 @@ public sealed partial class GameScene : AbstractScene {
 			if (!ball.Bounds.IntersectsWith(Paddle.Bounds)) continue;
 			PaddlePhysic(ball);
 		}
+	}
+
+	private void Lose() {
+		physicsTimer.Close();
+		movingObjectsTimer.Close();
+		Program.MainForm.ChangeScene(new GameScene(Level));
 	}
 
 	private void Win() {

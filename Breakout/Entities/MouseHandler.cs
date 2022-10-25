@@ -7,8 +7,6 @@ public delegate void MouseMovedEvent(MouseEventArgs e);
 public class GlobalMouseHandler : IMessageFilter {
 	private const int WmMousemove = 0x0200;
 
-	public event MouseMovedEvent? MouseMovedEvent;
-
 	#region IMessageFilter Members
 
 	public bool PreFilterMessage(ref Message m) {
@@ -19,4 +17,6 @@ public class GlobalMouseHandler : IMessageFilter {
 	}
 
 	#endregion
+
+	public event MouseMovedEvent? MouseMovedEvent;
 }

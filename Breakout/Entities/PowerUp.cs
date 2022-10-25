@@ -1,9 +1,8 @@
-﻿using Breakout.Properties;
-
-namespace Breakout.Entities;
+﻿namespace Breakout.Entities;
 
 using System;
 using System.Windows.Forms;
+using Properties;
 
 public enum PowerUpType {
 	BallNoClip,
@@ -18,10 +17,10 @@ public enum PowerUpType {
 
 public sealed class PowerUp : PictureBox {
 	private const double Speed = .4;
-	private readonly PowerUpType _type;
-	private readonly double _value;
 	private static readonly int[] ScoreValues = { 200, 500, 1000 };
 	private static readonly Random Random = new();
+	private readonly PowerUpType _type;
+	private readonly double _value;
 
 	public PowerUp(PowerUpType type, double value) {
 		_type = type;
@@ -44,7 +43,7 @@ public sealed class PowerUp : PictureBox {
 				_ => throw new ArgumentOutOfRangeException(nameof(value), value, "Invalid value for score multiplier powerup.")
 			},
 			PowerUpType.Random => Resources.poweruprandom,
-		_ => throw new ArgumentOutOfRangeException(nameof(type), type, "Invalid powerup type.")
+			_ => throw new ArgumentOutOfRangeException(nameof(type), type, "Invalid powerup type.")
 		};
 	}
 
@@ -100,7 +99,7 @@ public sealed class PowerUp : PictureBox {
 			case PowerUpType.BallSpeedUp:
 				collisionPayloadPayload.Game.BallSpeedMultiplier += _value;
 				break;
-			
+
 			case PowerUpType.BallSpeedDown:
 				collisionPayloadPayload.Game.BallSpeedMultiplier -= _value;
 				break;
@@ -120,13 +119,14 @@ public sealed class PowerUp : PictureBox {
 			case PowerUpType.ScoreMultiplier:
 				collisionPayloadPayload.Game.Score += (int) _value;
 				break;
-			
+
 			case PowerUpType.Random:
 				PowerUp randomPowerUp;
+
 				do {
 					randomPowerUp = GeneratePowerUp(collisionPayloadPayload.Game);
 				} while (randomPowerUp._type == PowerUpType.Random);
-				
+
 				randomPowerUp.Apply(collisionPayloadPayload);
 				break;
 

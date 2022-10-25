@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Breakout.Entities;
+using Entities;
 
 public sealed class CollisionPayload {
 	public Ball Ball;

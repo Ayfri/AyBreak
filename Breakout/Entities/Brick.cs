@@ -15,15 +15,11 @@ public sealed class Brick : PictureBox {
 
 	public Brick(BrickType type) {
 		Type = type;
-
-		Tag = new[] {
-			"Brick"
-		};
-
 		Width = BrickWidth;
 		Height = BrickHeight;
 		BackColor = type.GetColor(Health);
 		Health = type.MaxHealth;
+
 		#if DEBUG
 		_label = new() {
 			AutoSize = true,

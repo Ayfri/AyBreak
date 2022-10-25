@@ -3,7 +3,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Breakout.Properties;
+using Properties;
 
 public sealed class Ball : PictureBox {
 	private static readonly Random Random = new();
