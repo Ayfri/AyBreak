@@ -19,7 +19,7 @@ public enum Side {
 
 public sealed partial class GameScene : AbstractScene {
 	private const int TimerInterval = 1000 / 60;
-	private const int PaddleSpeed = 1;
+	private const double PaddleSpeed = 1.5;
 
 	private readonly List<Ball> _balls = new();
 	private readonly List<Brick> _bricks;
@@ -65,7 +65,7 @@ public sealed partial class GameScene : AbstractScene {
 		};
 	}
 
-	private bool _isPaused => Controls.Contains(_pauseMenu);
+	private bool _isPaused;
 
 	private bool LeftPressed { get; set; }
 	private bool RightPressed { get; set; }
@@ -168,11 +168,8 @@ public sealed partial class GameScene : AbstractScene {
 				continue;
 			}
 
-			#if DEBUG
 			if (_accelerate) ball.Speed = 2 * BallSpeedMultiplier;
-			else
-				#endif
-				ball.Speed = .9f * BallSpeedMultiplier;
+			else ball.Speed = .9f * BallSpeedMultiplier;
 
 			ball.Move(deltaTime);
 
@@ -187,6 +184,8 @@ public sealed partial class GameScene : AbstractScene {
 				} else {
 					ball.Reset();
 					Lives--;
+					_noClipTimer.Stop();
+					IsNoClip = false;
 				}
 
 				continue;
@@ -202,15 +201,9 @@ public sealed partial class GameScene : AbstractScene {
 	private void Lose() {
 		physicsTimer.Close();
 		movingObjectsTimer.Close();
-		Program.MainForm.ChangeScene(new GameScene(Level));
-	}
-
-	private void Win() {
-		physicsTimer.Close();
-		movingObjectsTimer.Close();
 
 		var winLabel = new Label {
-			Text = "You win!",
+			Text = "You loose :p",
 			Font = new(Program.MainFont, 60),
 			ForeColor = Color.White,
 			AutoSize = true
@@ -225,6 +218,32 @@ public sealed partial class GameScene : AbstractScene {
 			Enabled = true,
 			AutoReset = false
 		};
+		_isPaused = true;
+
+		timer.Elapsed += (_, _) => Program.MainForm.ChangeScene(new GameScene(Level));
+	}
+
+	private void Win() {
+		physicsTimer.Close();
+		movingObjectsTimer.Close();
+
+		var winLabel = new Label {
+			Text = "You won!",
+			Font = new(Program.MainFont, 60),
+			ForeColor = Color.White,
+			AutoSize = true
+		};
+
+		winLabel.Location = new(ClientSize.Width / 2 - 180, ClientSize.Height / 2 - 100);
+
+		Controls.Add(winLabel);
+		Controls.SetChildIndex(winLabel, 0);
+
+		var timer = new Timer(4 * 1000) {
+			Enabled = true,
+			AutoReset = false
+		};
+		_isPaused = true;
 
 		timer.Elapsed += (_, _) => {
 			AbstractScene scene = new LevelSelectionScene();
@@ -245,8 +264,8 @@ public sealed partial class GameScene : AbstractScene {
 	}
 
 	private void MovePaddle(int deltaTime) {
-		if (LeftPressed && Paddle.Left > 0) Paddle.Left -= PaddleSpeed * deltaTime;
-		if (RightPressed && Paddle.Bounds.Right < ClientSize.Width) Paddle.Left += PaddleSpeed * deltaTime;
+		if (LeftPressed && Paddle.Left > 0) Paddle.Left -= (int) (PaddleSpeed * deltaTime);
+		if (RightPressed && Paddle.Bounds.Right < ClientSize.Width) Paddle.Left += (int) (PaddleSpeed * deltaTime);
 	}
 
 	private void MoveScoreLabels(int deltaTime) {
@@ -382,12 +401,14 @@ public sealed partial class GameScene : AbstractScene {
 		_pauseMenu.BringToFront();
 		physicsTimer.Stop();
 		movingObjectsTimer.Stop();
+		_isPaused = true;
 	}
 
 	public void HidePauseMenu() {
 		Controls.Remove(_pauseMenu);
 		physicsTimer.Start();
 		movingObjectsTimer.Start();
+		_isPaused = false;
 	}
 
 	private void MovingObjectsLoop(object sender, ElapsedEventArgs e) {

@@ -27,6 +27,7 @@ public sealed class LevelSelectionScene : AbstractScene {
 
 		for (var i = 0; i < _levelCount; i++) {
 			var button = new LevelButton(i);
+			if (i == 0) button.Focus();
 			var x = i % 5 * (LevelButton.BtnWidth + LevelButton.BtnMargin);
 			var y = i / 5 * (LevelButton.BtnHeight + LevelButton.BtnMargin);
 			button.Location = new(ClientSize.Width / 2 - totalWidth / 2 + x, ClientSize.Height / 2 - 150 + y);
@@ -46,6 +47,7 @@ public sealed class LevelSelectionScene : AbstractScene {
 			Font = new(Program.MainFont, 30);
 			BackColor = Color.FromArgb(20, 20, 25);
 			ForeColor = Color.White;
+			FlatStyle = FlatStyle.Flat;
 
 			Click += (_, _) => {
 				var level = LevelManager.LoadLevel(levelNumber);
