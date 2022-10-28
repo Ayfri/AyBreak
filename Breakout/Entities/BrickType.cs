@@ -3,21 +3,14 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Timers;
-using Entities;
 
-public sealed class CollisionPayload {
-	public Ball Ball;
-	public Brick Brick;
-	public Point BrickPosition;
-	public GameScene Game = null!;
-	public Side Side;
-}
-
+/// <summary>
+///     The class for a BrickType.
+/// </summary>
 public sealed class BrickType {
-	private static readonly Timer _timer = new(30) { Enabled = true };
-	private static readonly List<Brick> _bricksGoingToBeHit = new();
-
+	/// <summary>
+	///     The dictionary of all the BrickTypes, mapped by their characters.
+	/// </summary>
 	public static readonly Dictionary<string, BrickType> BricksTypes = new() {
 		{
 			" ", new() {
@@ -123,27 +116,63 @@ public sealed class BrickType {
 		}
 	};
 
+	/// <summary>
+	///     The Action to be executed when the brick is hit.
+	/// </summary>
 	public Action<CollisionPayload>? OnCollision;
+
+	/// <summary>
+	///     The Function to be executed when the brick is hit to validate if the hit is valid.
+	/// </summary>
 	public Func<CollisionPayload, bool>? ValidateHit;
+
+	/// <summary>
+	///     The constructor for the BrickType.
+	/// </summary>
 	private BrickType() => MaxHealthColor = Color;
+
+	/// <summary>
+	///     The name of the BrickType.
+	/// </summary>
 	private string Name { get; set; } = "";
+
+	/// <summary>
+	///     The color of the BrickType.
+	/// </summary>
 	private Color Color { get; set; }
+
+	/// <summary>
+	///     The color of the BrickType when it has the maximum health.
+	/// </summary>
 	private Color MaxHealthColor { get; set; }
 
+	/// <summary>
+	///     The score of the BrickType.
+	/// </summary>
 	public int Score { get; private set; }
 
+	/// <summary>
+	///     The maximum health of the BrickType.
+	/// </summary>
 	public int MaxHealth { get; private set; } = 1;
 
+	/// <summary>
+	///     Is the brick is an empty brick.
+	/// </summary>
 	public bool IsEmpty => Name == "Empty";
 
-	// return gradient between max health color and current health color, gradiant is 0 to 256
-	// when currentHealth is 1, Color is returned, when health is MaxHealth, MaxHealthColor is returned
-	public Color GetColor(int currentHealth) {
-		if (currentHealth == 1 || MaxHealth == 1) return Color;
-		if (currentHealth == MaxHealth) return MaxHealthColor;
-		var r = (Color.R * (MaxHealth - currentHealth) + MaxHealthColor.R * currentHealth) / MaxHealth;
-		var g = (Color.G * (MaxHealth - currentHealth) + MaxHealthColor.G * currentHealth) / MaxHealth;
-		var b = (Color.B * (MaxHealth - currentHealth) + MaxHealthColor.B * currentHealth) / MaxHealth;
+	/// <summary>
+	///     Generate the color of the brick based on the health.
+	/// </summary>
+	/// <param name="brickType"> The BrickType to get the color from. </param>
+	/// <param name="currentHealth"> The current health of the brick. </param>
+	/// <returns> The color of the brick. </returns>
+	public static Color GetColor(BrickType brickType, int currentHealth) {
+		if (currentHealth == 1 || brickType.MaxHealth == 1) return brickType.Color;
+		if (currentHealth == brickType.MaxHealth) return brickType.MaxHealthColor;
+		var r = (brickType.Color.R * (brickType.MaxHealth - currentHealth) + brickType.MaxHealthColor.R * currentHealth) / brickType.MaxHealth;
+		var g = (brickType.Color.G * (brickType.MaxHealth - currentHealth) + brickType.MaxHealthColor.G * currentHealth) / brickType.MaxHealth;
+		var b = (brickType.Color.B * (brickType.MaxHealth - currentHealth) + brickType.MaxHealthColor.B * currentHealth) / brickType.MaxHealth;
 
 		return Color.FromArgb(r, g, b);
 	}

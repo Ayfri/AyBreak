@@ -4,7 +4,13 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
+/// <summary>
+///     The MainMenuScene class is the first scene that is loaded when the game starts.
+/// </summary>
 public sealed class MainMenuScene : AbstractScene {
+	/// <summary>
+	///     The credits label, placed at the bottom right of the screen.
+	/// </summary>
 	private readonly Label _creditsLabel = new() {
 		AutoSize = true,
 		Text = "Ayfri",
@@ -13,18 +19,27 @@ public sealed class MainMenuScene : AbstractScene {
 		Location = new((int) (MainForm.GameSize.Width * .9), (int) (MainForm.GameSize.Height * .9))
 	};
 
+	/// <summary>
+	///     The Exit button, placed at the below the start button.
+	/// </summary>
 	private readonly MenuButton _exitButton = new(
 		"Exit",
 		150,
 		static (_, _) => { Application.Exit(); }
 	);
 
+	/// <summary>
+	///     The Play button, placed at the middle of the screen.
+	/// </summary>
 	private readonly MenuButton _startButton = new(
 		"Start",
 		0,
 		static (_, _) => Program.MainForm.ChangeScene(new LevelSelectionScene())
 	);
 
+	/// <summary>
+	///     The title label, placed at the top of the screen.
+	/// </summary>
 	private readonly Label _titleLabel = new() {
 		Text = "AyBreak",
 		Font = new(Program.MainFont, 80),
@@ -34,6 +49,8 @@ public sealed class MainMenuScene : AbstractScene {
 		Location = new(MainForm.GameSize.Width / 2 - 210, MainForm.GameSize.Height / 6)
 	};
 
+	/// <summary> The MainMenuScene function creates the MainMenuScene object and adds all of its controls to the form. </summary>
+	/// <returns> A MainMenuScene object. </returns>
 	public MainMenuScene() {
 		BackColor = Color.FromArgb(15, 15, 20);
 		Size = MainForm.GameSize;
@@ -45,7 +62,15 @@ public sealed class MainMenuScene : AbstractScene {
 		);
 	}
 
+	/// <summary>
+	///     A MenuButton is a button that is used in the MainMenuScene.
+	/// </summary>
 	private sealed class MenuButton : Button {
+		/// <summary> The MenuButton function creates a button that is used in the main menu. </summary>
+		/// <param name="text"> The text to display on the button. </param>
+		/// <param name="offsetY"> The offset from the center of the screen on the Y axis. </param>
+		/// <param name="onClick"> The function to call when the button is clicked. </param>
+		/// <returns> A MenuButton object. </returns>
 		public MenuButton(string text, int offsetY, EventHandler onClick) {
 			Text = text;
 			Size = new(200, 80);

@@ -21,7 +21,6 @@
 		}
 
 		#region Windows Form Designer generated code
-
 		/// <summary>
 		/// Required method for Designer support - do not modify
 		/// the contents of this method with the code editor.
@@ -30,7 +29,6 @@
 			this.Paddle = new System.Windows.Forms.PictureBox();
 			this.physicsTimer = new System.Timers.Timer();
 			this.ScoreLabel = new System.Windows.Forms.Label();
-			this.debugLabel = new System.Windows.Forms.Label();
 			this.LivesLabel = new System.Windows.Forms.Label();
 			this.movingObjectsTimer = new System.Timers.Timer();
 			((System.ComponentModel.ISupportInitialize) (this.Paddle)).BeginInit();
@@ -67,15 +65,6 @@
 			this.ScoreLabel.Text = "Score";
 			this.ScoreLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
-			// debugLabel
-			// 
-			this.debugLabel.AutoSize = true;
-			this.debugLabel.Font = new System.Drawing.Font("Consolas", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (0)));
-			this.debugLabel.Location = new System.Drawing.Point(30, 77);
-			this.debugLabel.Name = "debugLabel";
-			this.debugLabel.Size = new System.Drawing.Size(0, 32);
-			this.debugLabel.TabIndex = 3;
-			// 
 			// LivesLabel
 			// 
 			this.LivesLabel.AutoSize = true;
@@ -102,7 +91,6 @@
 			this.BackColor = System.Drawing.Color.FromArgb(((int) (((byte) (3)))), ((int) (((byte) (3)))), ((int) (((byte) (8)))));
 			this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.Controls.Add(this.LivesLabel);
-			this.Controls.Add(this.debugLabel);
 			this.Controls.Add(this.ScoreLabel);
 			this.Controls.Add(this.Paddle);
 			this.Font = new System.Drawing.Font("JetBrains Mono", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (0)));
@@ -121,8 +109,6 @@
 		private System.Timers.Timer movingObjectsTimer;
 
 		private System.Windows.Forms.Label LivesLabel;
-
-		private System.Windows.Forms.Label debugLabel;
 
 		private System.Windows.Forms.Label ScoreLabel;
 

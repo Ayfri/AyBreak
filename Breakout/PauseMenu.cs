@@ -4,7 +4,14 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
+/// <summary>
+///     The PauseMenu class is a Panel that is displayed when the game is paused.
+/// </summary>
 public sealed class PauseMenu : Panel {
+	/// <summary>
+	///     Creates a new PauseMenu.
+	///     Displays a "Paused" label and three buttons: "Resume", "Restart", and "Quit".
+	///     <returns> A new PauseMenu. </returns>
 	public PauseMenu() {
 		BackColor = Color.FromArgb(100, 40, 40, 40);
 		Size = new(600, 450);
@@ -46,13 +53,21 @@ public sealed class PauseMenu : Panel {
 
 		exitButton.Location = new((Width - exitButton.Width) / 2, (Height - exitButton.Height) / 2 + 150);
 
-		Controls.Add(label);
-		Controls.Add(resumeButton);
-		Controls.Add(restartButton);
-		Controls.Add(exitButton);
+		Controls.AddRange(
+			new Control[] {
+				label, resumeButton, restartButton, exitButton
+			}
+		);
 	}
 
+	/// <summary>
+	///     A PauseMenuButton is a Button that is used in the PauseMenu.
+	/// </summary>
 	private sealed class PauseMenuButton : Button {
+		/// <summary> The PauseMenuButton function creates a button that is used in the pause menu. </summary>
+		/// <param name="text"> The text to be displayed on the button. </param>
+		/// <param name="clickHandler"> The function to be called when the button is clicked. </param>
+		/// <returns> A button that is used in the pause menu. </returns>
 		public PauseMenuButton(string text, EventHandler clickHandler) {
 			Text = text;
 			Click += clickHandler;

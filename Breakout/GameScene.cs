@@ -7,9 +7,12 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Timers;
 using System.Windows.Forms;
-using Entities;
+using Breakout.Entities;
 using Timer = System.Timers.Timer;
 
+/// <summary>
+///     A enum for sides.
+/// </summary>
 public enum Side {
 	Left,
 	Right,
@@ -17,30 +20,93 @@ public enum Side {
 	Bottom
 }
 
+/// <summary>
+///     The GameScene is the main game scene.
+/// </summary>
 public sealed partial class GameScene : AbstractScene {
+	/// <summary>
+	///     The Timer interval for the game to have a 60 FPS.
+	/// </summary>
 	private const int TimerInterval = 1000 / 60;
+
+	/// <summary>
+	///     The speed of the paddle.
+	/// </summary>
 	private const double PaddleSpeed = 1.5;
 
+	/// <summary>
+	///     The List of Balls.
+	/// </summary>
 	private readonly List<Ball> _balls = new();
+
+	/// <summary>
+	///     The list of bricks.
+	/// </summary>
 	private readonly List<Brick> _bricks;
 
+	/// <summary>
+	///     The noClip Timer for timing the noClip powerup.
+	/// </summary>
 	private readonly Timer _noClipTimer = new() {
 		Interval = 5000
 	};
 
+	/// <summary>
+	///     The pauseMenu panel.
+	/// </summary>
 	private readonly PauseMenu _pauseMenu = new();
+
+	/// <summary>
+	///     The list of powerups actually on the screen.
+	/// </summary>
 	private readonly List<PowerUp> _powerUps = new();
+
+	/// <summary>
+	///     The score labels actually on the screen.
+	/// </summary>
 	private readonly List<ScoreLabel> _scoreLabels = new();
 
+	/// <summary>
+	///     The current level.
+	/// </summary>
 	public readonly Level Level;
 
+	/// <summary>
+	///     Is the game is accelerated.
+	/// </summary>
 	private bool _accelerate;
+
+	/// <summary>
+	///     Is the game paused.
+	/// </summary>
+	private bool _isPaused;
+
+	/// <summary>
+	///     The last mouse position.
+	/// </summary>
 	private Point _lastMouse = new(-1, -1);
 
+	/// <summary>
+	///     The speed multiplier of the ball;
+	/// </summary>
 	public double BallSpeedMultiplier = 1;
+
+	/// <summary>
+	///     The number of lives.
+	/// </summary>
 	public int Lives = 5;
+
+	/// <summary>
+	///     The score.
+	/// </summary>
 	public int Score;
 
+	/// <summary>
+	///     The GameScene function is the main function of the game.
+	///     It initializes all of the components and sets up the scene.
+	/// </summary>
+	/// <param name="level"> The level to load. </param>
+	/// <returns> A level object. </returns>
 	public GameScene(Level level) {
 		Level = level;
 		InitializeComponent();
@@ -65,15 +131,27 @@ public sealed partial class GameScene : AbstractScene {
 		};
 	}
 
-	private bool _isPaused;
-
+	/// <summary>
+	///     Is the left key pressed.
+	/// </summary>
 	private bool LeftPressed { get; set; }
+
+	/// <summary>
+	///     Is the right key pressed.
+	/// </summary>
 	private bool RightPressed { get; set; }
 
+	/// <summary>
+	///     the number of balls.
+	/// </summary>
 	public int BallCount => _balls.Count;
 
+	/// <summary>
+	///     Is the game in noClip mode.
+	/// </summary>
 	public bool IsNoClip { get; private set; }
 
+	/// <summary> The AddBall function adds a ball to the game. </summary>
 	public void AddBall() {
 		var ball = new Ball();
 		ball.Reset();
@@ -81,12 +159,19 @@ public sealed partial class GameScene : AbstractScene {
 		Controls.Add(ball);
 	}
 
+	/// <summary> The AddPowerUp function adds a power up to the game. </summary>
+	/// <param name="powerUp"> The power up to add. </param>
 	public void AddPowerUp(PowerUp powerUp) {
 		_powerUps.Add(powerUp);
 		Controls.Add(powerUp);
 		powerUp.BringToFront();
 	}
 
+	/// <summary>
+	///     The RemoveBrick function removes the brick from the game, adds its score to the player's total and adds a score Label if there is currently less than
+	///     10 score Labels.
+	/// </summary>
+	/// <param name="brick"> The brick to be removed. </param>
 	public void RemoveBrick(Brick brick) {
 		_bricks.Remove(brick);
 		Controls.Remove(brick);
@@ -99,17 +184,20 @@ public sealed partial class GameScene : AbstractScene {
 		Controls.SetChildIndex(scoreLabel, 0);
 	}
 
+	/// <summary>
+	///     Returns a Brick at the given location.
+	/// </summary>
+	/// <param name="pos"> The position of the brick. </param>
+	/// <returns> The brick at the given location or null if there is no brick. </returns>
 	public Brick? GetBrick(Point pos) =>
 		(from brick in _bricks let brickPos = new Point(brick.Left / Brick.BrickWidth, brick.Top / Brick.BrickHeight) where brickPos == pos select brick)
 		.FirstOrDefault();
 
 	public Point GetBrickPos(Brick brick) => new(brick.Left / Brick.BrickWidth, brick.Top / Brick.BrickHeight);
 
-	/**
-	 * Creates bricks from the BricksLayout string.
-	 * A Brick is a PictureBox with a Tag of "Brick".
-	 * The bricks are added to the Controls collection.
-	 */
+	/// <summary>
+	///     Creates and display bricks from the BricksLayout string.
+	/// </summary>
 	private void GenerateBricks() {
 		var rows = Level.Layout.Split(
 			new[] {
@@ -152,6 +240,12 @@ public sealed partial class GameScene : AbstractScene {
 		}
 	}
 
+	/// <summary>
+	///     The GameLoop function is the main game loop.
+	///     It runs every 1/60th of a second, and handles all of the physics for each ball in play.
+	/// </summary>
+	/// <param name="_"> The sender. </param>
+	/// <param name="e"> The event arguments. </param>
 	private void GameLoop(object _, ElapsedEventArgs e) {
 		var deltaTime = (int) (e.SignalTime - e.SignalTime.AddMilliseconds(-TimerInterval)).TotalMilliseconds;
 		MovePaddle(deltaTime);
@@ -198,6 +292,10 @@ public sealed partial class GameScene : AbstractScene {
 		}
 	}
 
+	/// <summary>
+	///     The Lose function is called when the player loses all of their lives.
+	///     It stops the game loop, and displays the lose Label, then waits for 4 seconds before restarting the game.
+	/// </summary>
 	private void Lose() {
 		physicsTimer.Close();
 		movingObjectsTimer.Close();
@@ -218,11 +316,17 @@ public sealed partial class GameScene : AbstractScene {
 			Enabled = true,
 			AutoReset = false
 		};
+
 		_isPaused = true;
 
 		timer.Elapsed += (_, _) => Program.MainForm.ChangeScene(new GameScene(Level));
 	}
 
+	/// <summary>
+	///     The Win function is called when the player has destroyed all of the bricks.
+	///     It stops the game loop, and displays the win Label, then waits for 4 seconds before going to the next level or the level select screen if there is no next
+	///     level.
+	/// </summary>
 	private void Win() {
 		physicsTimer.Close();
 		movingObjectsTimer.Close();
@@ -243,6 +347,7 @@ public sealed partial class GameScene : AbstractScene {
 			Enabled = true,
 			AutoReset = false
 		};
+
 		_isPaused = true;
 
 		timer.Elapsed += (_, _) => {
@@ -257,17 +362,28 @@ public sealed partial class GameScene : AbstractScene {
 		};
 	}
 
+	/// <summary>
+	///     Starts the NoClip timer.
+	/// </summary>
 	public void NoClip() {
 		IsNoClip = true;
 		if (_noClipTimer.Enabled) _noClipTimer.Stop();
 		_noClipTimer.Start();
 	}
 
+	/// <summary>
+	///     Moves the paddle according to the user input with the given deltaTime.
+	/// </summary>
+	/// <param name="deltaTime"> The time since the last frame. </param>
 	private void MovePaddle(int deltaTime) {
 		if (LeftPressed && Paddle.Left > 0) Paddle.Left -= (int) (PaddleSpeed * deltaTime);
 		if (RightPressed && Paddle.Bounds.Right < ClientSize.Width) Paddle.Left += (int) (PaddleSpeed * deltaTime);
 	}
 
+	/// <summary>
+	///     Moves the ScoreLabels according to the user input with the given deltaTime.
+	/// </summary>
+	/// <param name="deltaTime"> The time since the last frame. </param>
 	private void MoveScoreLabels(int deltaTime) {
 		for (var i = 0; i < _scoreLabels.Count; i++) {
 			var scoreLabel = _scoreLabels[i];
@@ -280,6 +396,10 @@ public sealed partial class GameScene : AbstractScene {
 		}
 	}
 
+	/// <summary>
+	///     Moves the PowerUps according to the user input with the given deltaTime.
+	/// </summary>
+	/// <param name="deltaTime"> The time since the last frame. </param>
 	private void MovePowerUps(int deltaTime) {
 		for (var i = 0; i < _powerUps.Count; i++) {
 			var powerUp = _powerUps[i];
@@ -290,6 +410,10 @@ public sealed partial class GameScene : AbstractScene {
 		}
 	}
 
+	/// <summary>
+	///     Handle the physics of the ball and the bricks.
+	/// </summary>
+	/// <param name="ball"> The ball to handle the physics of. </param>
 	private void BricksPhysics(Ball ball) {
 		var ballRect = ball.Bounds;
 		var nextBallRect = new Rectangle((int) (ball.Left + ball.Velocity.X), (int) (ball.Top + ball.Velocity.Y), ball.Width, ball.Height);
@@ -340,6 +464,9 @@ public sealed partial class GameScene : AbstractScene {
 		}
 	}
 
+	/// <summary>
+	///     Handle the physics of the PowerUps.
+	/// </summary>
 	private void PowerUpPhysics() {
 		var collisionPayload = new CollisionPayload {
 			Game = this
@@ -357,6 +484,10 @@ public sealed partial class GameScene : AbstractScene {
 		}
 	}
 
+	/// <summary>
+	///     Handle the physics of the ball and the paddle.
+	/// </summary>
+	/// <param name="ball"> The ball to handle the physics of. </param>
 	private void PaddlePhysic(Ball ball) {
 		var bounceAngle = Math.Atan2(-ball.Velocity.Y, ball.Velocity.X);
 		var paddleAngle = (ball.CenterX() - Paddle.CenterX()) * 90 / (Paddle.Width / 2d) - 90;
@@ -370,6 +501,10 @@ public sealed partial class GameScene : AbstractScene {
 		ball.Velocity = new((float) Math.Cos(finalAngle * Math.PI / 180d), (float) Math.Sin(finalAngle * Math.PI / 180d));
 	}
 
+	/// <summary>
+	///     The KeyDown event handler for moving the paddle, accelerating the balls, pausing the game, launching the balls and relaunching the balls.
+	/// </summary>
+	/// <param name="e"> The event arguments. </param>
 	public override void KeyDown(KeyEventArgs e) {
 		if (e.KeyCode == Keys.Left) LeftPressed = true;
 		if (e.KeyCode == Keys.Right) RightPressed = true;
@@ -390,12 +525,19 @@ public sealed partial class GameScene : AbstractScene {
 		}
 	}
 
+	/// <summary>
+	///     The KeyUp event handler for moving the paddle and accelerating the balls.
+	/// </summary>
+	/// <param name="e"> The event arguments. </param>
 	public override void KeyUp(KeyEventArgs e) {
 		if (e.KeyCode == Keys.Left) LeftPressed = false;
 		if (e.KeyCode == Keys.Right) RightPressed = false;
 		if (e.KeyCode == Keys.B) _accelerate = false;
 	}
 
+	/// <summary>
+	///     Show the pause menu.
+	/// </summary>
 	private void ShowPauseMenu() {
 		Controls.Add(_pauseMenu);
 		_pauseMenu.BringToFront();
@@ -404,6 +546,9 @@ public sealed partial class GameScene : AbstractScene {
 		_isPaused = true;
 	}
 
+	/// <summary>
+	///     Hide the pause menu.
+	/// </summary>
 	public void HidePauseMenu() {
 		Controls.Remove(_pauseMenu);
 		physicsTimer.Start();
@@ -411,6 +556,11 @@ public sealed partial class GameScene : AbstractScene {
 		_isPaused = false;
 	}
 
+	/// <summary>
+	///     The MovingObjectsTimer loop, move the moving objects.
+	/// </summary>
+	/// <param name="sender"> </param>
+	/// <param name="e"> </param>
 	private void MovingObjectsLoop(object sender, ElapsedEventArgs e) {
 		var deltaTime = (int) (e.SignalTime - e.SignalTime.AddMilliseconds(-TimerInterval)).TotalMilliseconds;
 
@@ -418,12 +568,14 @@ public sealed partial class GameScene : AbstractScene {
 		MoveScoreLabels(deltaTime);
 		PowerUpPhysics();
 
-		debugLabel.Visible = debugLabel.Text.Length > 0;
-
 		ScoreLabel.Text = $"Score: {Score}";
 		LivesLabel.Text = $"Lives: {Lives}";
 	}
 
+	/// <summary>
+	///     The MouseMove event handler for moving the paddle.
+	/// </summary>
+	/// <param name="e"> The event arguments. </param>
 	public override void MouseMove(MouseEventArgs e) {
 		if (_isPaused) return;
 

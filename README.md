@@ -1,2 +1,3 @@
-# CSharp-Games
-C# games I have to do for my school using Windows Forms.
+# AyBreak
+
+A breakout game made in Windows Forms and C#.
