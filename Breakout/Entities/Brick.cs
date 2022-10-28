@@ -1,6 +1,7 @@
 ﻿namespace Breakout.Entities;
 
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 public sealed class Brick : PictureBox {
@@ -25,12 +26,9 @@ public sealed class Brick : PictureBox {
 			Font = new(Program.MainFont, 8),
 			ForeColor = Color.White,
 			Location = new(0, 0),
-			Tag = new[] {
-				"BrickHealth"
-			},
 			Text = Health.ToString()
 		};
-
+		
 		Controls.Add(_label);
 		#endif
 	}

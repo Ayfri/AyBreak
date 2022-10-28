@@ -26,8 +26,8 @@ public sealed class PowerUp : PictureBox {
 		_type = type;
 		_value = value;
 
-		Width = 45;
-		Height = 24;
+		Width = 52;
+		Height = 32;
 		SizeMode = PictureBoxSizeMode.StretchImage;
 
 		Image = type switch {
