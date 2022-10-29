@@ -1,3 +1,15 @@
+<!-- TOC -->
+* [AyBreak](#aybreak)
+  * [What is it?](#what-is-it)
+    * [Theme](#theme)
+    * [Main objectives](#main-objectives)
+    * [Difficulties encountered](#difficulties-encountered)
+  * [How to play](#how-to-play)
+    * [Controls](#controls)
+  * [How to build](#how-to-build)
+    * [Debug specificities](#debug-specificities)
+<!-- TOC -->
+
 # AyBreak
 
 A breakout game made in Windows Forms and C#.
@@ -7,6 +19,11 @@ A breakout game made in Windows Forms and C#.
 AyBreak is a simple breakout game made in Windows Forms and C#.
 It has been made as a school project for Ynov in about 2 weeks.
 It has been chosen between 6 different projects like platformer, pong, etc, and I chose to make a breakout game because I thought it would be the funniest to make and the most interesting to do.
+
+### Theme
+
+There are no real theme in the game, but I tried to make it as simple as possible, with a simple background and a simple design.
+I created my own ball sprite and used powerups sprites from another game LBreakout HD, some are unused in the game.
 
 ### Main objectives
 
